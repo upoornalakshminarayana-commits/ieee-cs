@@ -305,26 +305,25 @@ function checkRegistrationAvailability() {
 /**
  * HTTP GET Handler
  * Actions supported:
- * - ?action=ping
- * - ?action=getSettings
- * - ?action=getRegistrations (default)
+ * - (empty) or ?action=ping (public health status)
+ * - ?action=getSettings or ?action=getRegistrationAvailability (public availability check)
+ * - ?action=adminAuthCheck (admin auth status diagnostic)
+ * - ?action=getRegistrations (admin registration retrieval - requires ADMIN_SECRET)
  */
 function doGet(e) {
   try {
-    var action = (e && e.parameter && e.parameter.action) ? e.parameter.action.toString().trim() : "getRegistrations";
+    var action = (e && e.parameter && e.parameter.action) ? e.parameter.action.toString().trim() : "";
 
-    if (action === "ping") {
+    // -----------------------------------------------------------------
+    // 1. PUBLIC GET ACTIONS (ZERO ADMIN AUTH REQUIRED)
+    // -----------------------------------------------------------------
+    // Default GET (visiting URL directly) or ping: public health check
+    if (!action || action === "ping") {
       return createJsonResponse({
         success: true,
-        message: "KHEPRIX 2K26 Registration & Overseer API is live"
-      });
-    }
-
-    if (action === "adminAuthCheck") {
-      var isAuthenticated = checkAdminAuthStatus(null, e, null);
-      return createJsonResponse({
-        success: isAuthenticated,
-        authenticated: isAuthenticated
+        message: "KHEPRIX 2K26 Registration & Overseer API is live",
+        status: "ACTIVE",
+        timestamp: Utilities.formatDate(new Date(), CONFIG.TIMEZONE, "yyyy-MM-dd HH:mm:ss")
       });
     }
 
@@ -344,10 +343,27 @@ function doGet(e) {
       });
     }
 
-    // Default action: Return registrations with calculated FCFS + current settings
-    // Enforces admin verification to protect sensitive squad data
-    verifyAdminAuth(null, e, null);
-    return handleGetRegistrations();
+    // -----------------------------------------------------------------
+    // 2. ADMIN GET ACTIONS (STRICT ADMIN AUTH REQUIRED)
+    // -----------------------------------------------------------------
+    if (action === "adminAuthCheck") {
+      var isAuthenticated = checkAdminAuthStatus(null, e, null);
+      return createJsonResponse({
+        success: isAuthenticated,
+        authenticated: isAuthenticated
+      });
+    }
+
+    if (action === "getRegistrations") {
+      verifyAdminAuth(null, e, null);
+      return handleGetRegistrations();
+    }
+
+    return createJsonResponse({
+      success: false,
+      error: "Unknown or invalid GET action: '" + action + "'"
+    });
+
   } catch (err) {
     Logger.log("doGet error: " + err.toString());
     return createJsonResponse({
@@ -555,42 +571,49 @@ function handleGetRegistrations() {
 // ==============================================================================
 
 /**
- * HTTP POST Handler — Routes public registrations and authenticated admin actions
+ * HTTP POST Handler — Safely routes public registrations and authenticated admin actions
  */
 function doPost(e) {
   var lock = LockService.getScriptLock();
+  var lockAcquired = false;
   try {
-    lock.waitLock(30000);
-  } catch (lockError) {
-    Logger.log("Lock acquisition failed: " + lockError.toString());
-    return createJsonResponse({
-      success: false,
-      error: "Server busy processing other requests. Please retry in a few moments."
-    });
-  }
+    try {
+      lock.waitLock(30000);
+      lockAcquired = true;
+    } catch (lockError) {
+      Logger.log("Lock acquisition warning: " + lockError.toString());
+    }
 
-  try {
     if (!e || !e.postData || !e.postData.contents) {
-      throw new Error("No payload received. Request body was empty.");
+      return createJsonResponse({
+        success: false,
+        error: "No payload received. Request body was empty."
+      });
     }
 
     var data;
     try {
       data = JSON.parse(e.postData.contents);
     } catch (parseError) {
-      throw new Error("Invalid JSON payload: " + parseError.message);
+      return createJsonResponse({
+        success: false,
+        error: "Invalid JSON payload: " + parseError.message
+      });
     }
 
-    var action = data.action || (e.parameter && e.parameter.action) || "";
+    var action = (data && data.action) || (e.parameter && e.parameter.action) || "";
 
-    // Route Actions
-    if (action === "adminAuthCheck") {
-      var isAuth = checkAdminAuthStatus(data.adminSecret, e, data);
+    // -----------------------------------------------------------------
+    // 1. PUBLIC POST OPERATIONS (ZERO ADMIN AUTH REQUIRED)
+    // -----------------------------------------------------------------
+    if (action === "ping") {
       return createJsonResponse({
-        success: isAuth,
-        authenticated: isAuth
+        success: true,
+        message: "KHEPRIX 2K26 API is live"
       });
-    } else if (action === "getSettings" || action === "getRegistrationAvailability") {
+    }
+
+    if (action === "getSettings" || action === "getRegistrationAvailability") {
       var availability = checkRegistrationAvailability();
       return createJsonResponse({
         success: true,
@@ -604,20 +627,65 @@ function doPost(e) {
         reason: availability.reason,
         settings: availability
       });
-    } else if (action === "updateSettings") {
+    }
+
+    // Public Registration (matches action === "register", "publicRegistration", or implicit team payload)
+    var isPublicRegistration = (
+      action === "register" ||
+      action === "publicRegistration" ||
+      (!action && data && data.teamName && data.members)
+    );
+
+    if (isPublicRegistration) {
+      return handlePublicRegistration(data);
+    }
+
+    // -----------------------------------------------------------------
+    // 2. ADMIN POST OPERATIONS (STRICT ADMIN AUTH REQUIRED)
+    // -----------------------------------------------------------------
+    if (action === "adminAuthCheck") {
+      var isAuth = checkAdminAuthStatus(data ? data.adminSecret : null, e, data);
+      return createJsonResponse({
+        success: isAuth,
+        authenticated: isAuth
+      });
+    }
+
+    if (action === "getRegistrations") {
+      verifyAdminAuth(data ? data.adminSecret : null, e, data);
+      return handleGetRegistrations();
+    }
+
+    if (action === "updateSettings") {
+      verifyAdminAuth(data ? data.adminSecret : null, e, data);
       return handleUpdateSettings(data, e);
-    } else if (action === "blockRegistration") {
+    }
+
+    if (action === "blockRegistration") {
+      verifyAdminAuth(data ? data.adminSecret : null, e, data);
       return handleBlockRegistration(data, e);
-    } else if (action === "unblockRegistration") {
+    }
+
+    if (action === "unblockRegistration") {
+      verifyAdminAuth(data ? data.adminSecret : null, e, data);
       return handleUnblockRegistration(data, e);
-    } else if (action === "addTeam") {
+    }
+
+    if (action === "addTeam") {
+      verifyAdminAuth(data ? data.adminSecret : null, e, data);
       return handleAdminAddTeam(data, e);
-    } else if (action === "updatePaymentStatus") {
+    }
+
+    if (action === "updatePaymentStatus") {
+      verifyAdminAuth(data ? data.adminSecret : null, e, data);
       return handleUpdatePaymentStatus(data, e);
     }
 
-    // Default: Public Squad Registration
-    return handlePublicRegistration(data);
+    // Unknown action error response
+    return createJsonResponse({
+      success: false,
+      error: "Unknown or invalid action: '" + action + "'"
+    });
 
   } catch (error) {
     Logger.log("FATAL POST error: " + error.toString());
@@ -626,7 +694,13 @@ function doPost(e) {
       error: error.message || error.toString()
     });
   } finally {
-    lock.releaseLock();
+    if (lockAcquired) {
+      try {
+        lock.releaseLock();
+      } catch (releaseErr) {
+        Logger.log("Lock release warning: " + releaseErr.toString());
+      }
+    }
   }
 }
 
@@ -640,21 +714,31 @@ function handlePublicRegistration(data) {
   if (!availability.allowed) {
     return createJsonResponse({
       success: false,
-      error: availability.reason || "Registrations are currently closed."
+      error: availability.reason || "Registrations are currently closed.",
+      reason: availability.calculatedStatus
     });
   }
 
-  // 2. Validate essential fields
+  // 2. Validate essential fields (returns clean JSON errors rather than throwing)
   if (!data.teamName || !data.teamName.toString().trim()) {
-    throw new Error("Missing required field: teamName");
+    return createJsonResponse({
+      success: false,
+      error: "Missing required field: teamName"
+    });
   }
 
   if (!data.members || !Array.isArray(data.members) || data.members.length < 4) {
-    throw new Error("Registration requires exactly 4 squad members.");
+    return createJsonResponse({
+      success: false,
+      error: "Registration requires exactly 4 squad members."
+    });
   }
 
   if (!data.paymentScreenshotUrl) {
-    throw new Error("Payment screenshot data is required.");
+    return createJsonResponse({
+      success: false,
+      error: "Payment screenshot data is required."
+    });
   }
 
   // 3. Generate Registration ID
@@ -662,13 +746,29 @@ function handlePublicRegistration(data) {
   var timestampStr = Utilities.formatDate(now, CONFIG.TIMEZONE, "yyyyMMdd-HHmmss");
   var registrationId = "KPX-" + timestampStr;
 
-  // 4. Save Payment Screenshot to Dedicated Google Drive Folder
-  var driveFileUrl = saveScreenshotToDrive(
-    data.paymentScreenshotUrl,
-    data.paymentScreenshotName,
-    registrationId,
-    now
-  );
+  // 4. Save Payment Screenshot to Dedicated Google Drive Folder (safely isolated)
+  var driveFileUrl = "";
+  try {
+    driveFileUrl = saveScreenshotToDrive(
+      data.paymentScreenshotUrl,
+      data.paymentScreenshotName,
+      registrationId,
+      now
+    );
+  } catch (driveErr) {
+    Logger.log("Screenshot Drive save failed: " + driveErr.toString());
+    return createJsonResponse({
+      success: false,
+      error: "Payment screenshot proof could not be saved to Google Drive: " + (driveErr.message || "Drive upload error. Please re-upload your screenshot and retry.")
+    });
+  }
+
+  if (!driveFileUrl) {
+    return createJsonResponse({
+      success: false,
+      error: "Failed to upload payment proof. Please re-upload screenshot and retry."
+    });
+  }
 
   // 5. Open Sheet1
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -687,6 +787,8 @@ function handlePublicRegistration(data) {
   var m2 = data.members[1] || {};
   var m3 = data.members[2] || {};
   var m4 = data.members[3] || {};
+
+  var txnId = (data.transactionId || data.txnId || data.utr || data.transaction_id || "").toString().trim();
 
   var rowObject = {
     "Registration ID": registrationId,
@@ -758,7 +860,7 @@ function handlePublicRegistration(data) {
     "Blocked At": "",
     "Blocked By": "",
     "Block Reason": "",
-    "Transaction ID": (data.transactionId || data.txnId || data.utr || data.transaction_id || "").toString().trim(),
+    "Transaction ID": txnId,
     "Registration Source": "PUBLIC"
   };
 
@@ -770,7 +872,7 @@ function handlePublicRegistration(data) {
     registrationId: registrationId,
     regId: registrationId,
     id: registrationId,
-    transactionId: (data.transactionId || data.txnId || data.utr || data.transaction_id || "").toString().trim(),
+    transactionId: txnId,
     teamName: data.teamName,
     timestamp: formattedTimestamp,
     fcfsPosition: availability.activeTeams + 1,
@@ -1168,23 +1270,29 @@ function formatHeaderRow(sheet) {
  * Saves a base64-encoded screenshot into a dedicated Google Drive folder
  */
 function saveScreenshotToDrive(base64DataUrl, originalName, registrationId, dateObj) {
+  if (!base64DataUrl || typeof base64DataUrl !== "string") {
+    return "";
+  }
+
   var folder = getOrCreateDriveFolder(CONFIG.DRIVE_FOLDER_NAME);
 
-  var mimeType = "image/png";
-  var ext = "png";
+  var mimeType = "image/jpeg";
+  var ext = "jpg";
   var rawBase64 = base64DataUrl;
 
-  var matches = base64DataUrl.match(/^data:([a-zA-Z0-9\/\-+.]+);base64,(.+)$/);
-  if (matches) {
-    mimeType = matches[1];
-    rawBase64 = matches[2];
-
-    if (mimeType.indexOf("jpeg") !== -1 || mimeType.indexOf("jpg") !== -1) {
-      ext = "jpg";
-    } else if (mimeType.indexOf("webp") !== -1) {
-      ext = "webp";
-    } else if (mimeType.indexOf("png") !== -1) {
+  var commaIdx = base64DataUrl.indexOf(",");
+  if (commaIdx !== -1) {
+    var header = base64DataUrl.substring(0, commaIdx);
+    rawBase64 = base64DataUrl.substring(commaIdx + 1);
+    if (header.indexOf("png") !== -1) {
+      mimeType = "image/png";
       ext = "png";
+    } else if (header.indexOf("webp") !== -1) {
+      mimeType = "image/webp";
+      ext = "webp";
+    } else {
+      mimeType = "image/jpeg";
+      ext = "jpg";
     }
   }
 

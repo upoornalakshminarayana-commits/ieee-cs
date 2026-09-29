@@ -38,6 +38,66 @@ const emptyMember = (): MemberData => ({
   wardenPhone: '',
 })
 
+/**
+ * Compresses an uploaded image file to a lightweight, crisp base64 JPEG.
+ * Ensures max dimensions of 1200px and 82% quality.
+ * Reduces 5MB-10MB mobile screenshots down to ~80KB-180KB for instant transmission,
+ * preventing Google Apps Script edge proxy timeout (404/504 errors).
+ */
+const compressImageFile = (file: File): Promise<{ dataUrl: string; name: string }> => {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = () => resolve({ dataUrl: reader.result as string, name: file.name })
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const img = new Image()
+      img.onload = () => {
+        const MAX_WIDTH = 1200
+        const MAX_HEIGHT = 1200
+        let width = img.width
+        let height = img.height
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width)
+            width = MAX_WIDTH
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width = Math.round((width * MAX_HEIGHT) / height)
+            height = MAX_HEIGHT
+          }
+        }
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          resolve({ dataUrl: e.target?.result as string, name: file.name })
+          return
+        }
+
+        ctx.drawImage(img, 0, 0, width, height)
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82)
+        resolve({ dataUrl: compressedDataUrl, name: file.name })
+      }
+      img.onerror = () => {
+        resolve({ dataUrl: e.target?.result as string, name: file.name })
+      }
+      img.src = e.target?.result as string
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
+
 interface RegistrationProps {
   isOpen?: boolean
 }
@@ -140,20 +200,21 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
     })
   }, [])
 
-  // Handle Screenshot Upload (PNG, JPG, WEBP)
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle Screenshot Upload (PNG, JPG, WEBP) with automatic downscaling for reliable transmission
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
     // Store the File object for later upload
     setPaymentFile(file)
 
-    const reader = new FileReader()
-    reader.onload = () => {
+    try {
+      // Compress and optimize image to avoid exceeding Google Apps Script execution and payload limits
+      const { dataUrl, name } = await compressImageFile(file)
       setForm(prev => ({
         ...prev,
-        paymentScreenshot: reader.result as string,
-        paymentScreenshotName: file.name,
+        paymentScreenshot: dataUrl,
+        paymentScreenshotName: name,
       }))
       if (errors['paymentScreenshot']) {
         setErrors(prev => {
@@ -162,8 +223,25 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
           return next
         })
       }
+    } catch {
+      // Fallback to raw FileReader if compression fails
+      const reader = new FileReader()
+      reader.onload = () => {
+        setForm(prev => ({
+          ...prev,
+          paymentScreenshot: reader.result as string,
+          paymentScreenshotName: file.name,
+        }))
+        if (errors['paymentScreenshot']) {
+          setErrors(prev => {
+            const next = { ...prev }
+            delete next['paymentScreenshot']
+            return next
+          })
+        }
+      }
+      reader.readAsDataURL(file)
     }
-    reader.readAsDataURL(file)
   }
 
   const removeScreenshot = () => {
@@ -265,6 +343,7 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
     setSub(true)
     try {
       const requestBody = {
+        action: 'register',
         teamName: form.teamName.trim(),
         transactionId: form.transactionId.trim(),
         members: form.members,
@@ -280,7 +359,9 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
       })
 
       // Use text/plain;charset=utf-8 to bypass browser CORS preflight (OPTIONS) check for Google Apps Script Web App
-      const response = await fetch('https://script.google.com/macros/s/AKfycbwzBchO29z8hOOhDExK8Od8voS3YVUZBO4HKKImvuO_5jOHFwcThmDLtFzfCuWHeuYA/exec', {
+      // Append ?action=register to the endpoint URL to guarantee proper routing in Apps Script
+      const endpointUrl = 'https://script.google.com/macros/s/AKfycbwzBchO29z8hOOhDExK8Od8voS3YVUZBO4HKKImvuO_5jOHFwcThmDLtFzfCuWHeuYA/exec?action=register'
+      const response = await fetch(endpointUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
@@ -289,26 +370,40 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
       })
 
       const responseText = await response.text()
-      console.log('Google Apps Script server raw response text:', responseText)
+      console.log('Google Apps Script server raw response text length:', responseText.length)
 
       if (!responseText || !responseText.trim()) {
         throw new Error('Empty response received from registration server. Please check your connection and retry.')
       }
 
-      let data: any = {}
+      let data: any = null
       try {
         data = JSON.parse(responseText)
       } catch {
-        console.error('Non-JSON response from server:', responseText)
+        // If response has embedded JSON or HTML wrapper, extract the JSON object substring
+        const firstBrace = responseText.indexOf('{')
+        const lastBrace = responseText.lastIndexOf('}')
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          try {
+            data = JSON.parse(responseText.slice(firstBrace, lastBrace + 1))
+          } catch {
+            // Keep data as null
+          }
+        }
+      }
+
+      if (!data) {
+        console.error('Non-JSON response from server:', {
+          status: response.status,
+          statusText: response.statusText,
+          url: response.url,
+          preview: responseText.slice(0, 200),
+        })
         throw new Error(`Server returned non-JSON format (${response.status}): ${responseText.slice(0, 150)}`)
       }
 
       if (data.success === false || data.error) {
         throw new Error(data.error || 'Server rejected registration request.')
-      }
-
-      if (!response.ok) {
-        throw new Error(`Server returned error status (${response.status})`)
       }
 
       const receivedId = 
