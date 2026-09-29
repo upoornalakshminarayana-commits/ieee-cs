@@ -15,7 +15,7 @@ git init
 git remote remove origin 2>nul
 git remote add origin https://github.com/upoornalakshminarayana-commits/ieee-cs.git
 git add -A
-git commit -m "KHEPRIX 2K26 official website and registration system" 2>nul
+git commit -m "Fix TypeScript compilation errors for Vercel production build" 2>nul
 git branch -M main
 git push -u origin main --force
 

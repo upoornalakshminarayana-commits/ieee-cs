@@ -19,7 +19,7 @@ git init
 git remote remove origin 2>$null
 git remote add origin https://github.com/upoornalakshminarayana-commits/ieee-cs.git
 git add -A
-git commit -m "KHEPRIX 2K26 official website and registration system" 2>$null
+git commit -m "Fix TypeScript compilation errors for Vercel production build" 2>$null
 git branch -M main
 
 Write-Host "Syncing with remote..." -ForegroundColor Yellow

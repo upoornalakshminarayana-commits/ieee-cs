@@ -136,10 +136,15 @@ export async function submitRegistration(formData: {
   validatePaymentFile(formData.paymentFile);
 
   // 2️⃣ Upload screenshot
-  let uploadResult;
+  let uploadResult: {
+    screenshotUrl: string;
+    screenshotPath: string;
+    originalFileName: string;
+    uploadedAt: FieldValue;
+  };
   try {
     uploadResult = await uploadPaymentScreenshot(registrationId, formData.paymentFile);
-  } catch (err) {
+  } catch {
     throw new Error('Payment screenshot upload failed. Please try again.');
   }
 
@@ -184,10 +189,12 @@ export async function submitRegistration(formData: {
   try {
     await setDoc(newDocRef, payload);
     return registrationId;
-  } catch (err) {
+  } catch {
     // Cleanup orphaned screenshot
     try {
-      await deleteObject(storageRef(storage, uploadResult.screenshotPath));
+      if (uploadResult?.screenshotPath) {
+        await deleteObject(storageRef(storage, uploadResult.screenshotPath));
+      }
     } catch (cleanupErr) {
       console.error('Failed to clean up orphaned screenshot:', cleanupErr);
     }
