@@ -14,10 +14,12 @@ const videoServerPlugin = (): Plugin => ({
 
       if (url.startsWith('/videos/desktop/')) {
         const rel = decodeURIComponent(url.replace('/videos/desktop/', '').split('?')[0])
-        targetPath = path.resolve('G:/Mummy/desktop vedios', rel)
+        const localPath = path.resolve(__dirname, 'public/videos/desktop', rel)
+        targetPath = fs.existsSync(localPath) ? localPath : path.resolve('G:/Mummy/desktop vedios', rel)
       } else if (url.startsWith('/videos/mobile/')) {
         const rel = decodeURIComponent(url.replace('/videos/mobile/', '').split('?')[0])
-        targetPath = path.resolve('G:/Mummy/mobile vedios', rel)
+        const localPath = path.resolve(__dirname, 'public/videos/mobile', rel)
+        targetPath = fs.existsSync(localPath) ? localPath : path.resolve('G:/Mummy/mobile vedios', rel)
       }
 
       if (targetPath && fs.existsSync(targetPath) && fs.statSync(targetPath).isFile()) {
