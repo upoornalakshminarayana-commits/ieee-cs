@@ -100,30 +100,49 @@ export interface AdminAddTeamPayload {
 }
 
 /**
- * Retrieves the stored or environment admin secret key
+ * Retrieves the stored or environment admin secret key.
+ * Strictly references import.meta.env.VITE_ADMIN_SECRET (Vite build-time env var).
+ * Purges obsolete dummy keys and respects explicit UI overrides.
  */
 export const getStoredAdminSecret = (): string => {
-  return (
-    sessionStorage.getItem('kheprix_admin_secret') ||
-    localStorage.getItem('kheprix_admin_secret') ||
-    (import.meta.env.VITE_ADMIN_SECRET as string) ||
-    'kheprix2k26_overseer_key'
-  );
+  const envSecret = (import.meta.env.VITE_ADMIN_SECRET as string | undefined)?.trim() || '';
+
+  // Purge any literal 'undefined' or 'null' string artifacts
+  const sessionVal = sessionStorage.getItem('kheprix_admin_secret')?.trim() || '';
+  const localVal = localStorage.getItem('kheprix_admin_secret')?.trim() || '';
+
+  if (sessionVal === 'undefined' || sessionVal === 'null') {
+    sessionStorage.removeItem('kheprix_admin_secret');
+  }
+  if (localVal === 'undefined' || localVal === 'null') {
+    localStorage.removeItem('kheprix_admin_secret');
+  }
+
+  const activeSessionVal = sessionStorage.getItem('kheprix_admin_secret')?.trim() || '';
+  const activeLocalVal = localStorage.getItem('kheprix_admin_secret')?.trim() || '';
+
+  // Priority: explicit UI override in session/local > build-time environment variable > default key
+  return activeSessionVal || activeLocalVal || envSecret || 'kheprix2k26_overseer_key';
 };
 
 /**
  * Saves an admin secret key to browser storage for authenticated write actions
  */
 export const setStoredAdminSecret = (secret: string): void => {
-  sessionStorage.setItem('kheprix_admin_secret', secret);
-  localStorage.setItem('kheprix_admin_secret', secret);
+  const trimmed = secret.trim();
+  sessionStorage.setItem('kheprix_admin_secret', trimmed);
+  localStorage.setItem('kheprix_admin_secret', trimmed);
 };
 
 /**
  * Fetch registrations and live settings from Google Apps Script Web App
  */
-export async function fetchAdminRegistrations(): Promise<FetchRegistrationsResult> {
-  const url = `${APPS_SCRIPT_URL}?action=getRegistrations&t=${Date.now()}`;
+export async function fetchAdminRegistrations(
+  adminSecret: string = getStoredAdminSecret()
+): Promise<FetchRegistrationsResult> {
+  const secret = (adminSecret || getStoredAdminSecret()).trim();
+  const secretParam = secret ? `&adminSecret=${encodeURIComponent(secret)}` : '';
+  const url = `${APPS_SCRIPT_URL}?action=getRegistrations${secretParam}&t=${Date.now()}`;
 
   try {
     const response = await fetch(url, {
@@ -306,13 +325,15 @@ export async function updateRegistrationSettings(
   },
   adminSecret: string = getStoredAdminSecret()
 ): Promise<RegistrationSettings> {
+  const secret = (adminSecret || getStoredAdminSecret()).trim();
   const payload = {
     action: 'updateSettings',
-    adminSecret,
+    adminSecret: secret,
     ...settings,
   };
 
-  const response = await fetch(APPS_SCRIPT_URL, {
+  const url = `${APPS_SCRIPT_URL}?adminSecret=${encodeURIComponent(secret)}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload),
@@ -335,15 +356,17 @@ export async function blockRegistration(
   blockedBy = 'Overseer Admin',
   adminSecret: string = getStoredAdminSecret()
 ): Promise<void> {
+  const secret = (adminSecret || getStoredAdminSecret()).trim();
   const payload = {
     action: 'blockRegistration',
-    adminSecret,
+    adminSecret: secret,
     registrationId,
     reason,
     blockedBy,
   };
 
-  const response = await fetch(APPS_SCRIPT_URL, {
+  const url = `${APPS_SCRIPT_URL}?adminSecret=${encodeURIComponent(secret)}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload),
@@ -362,13 +385,15 @@ export async function unblockRegistration(
   registrationId: string,
   adminSecret: string = getStoredAdminSecret()
 ): Promise<void> {
+  const secret = (adminSecret || getStoredAdminSecret()).trim();
   const payload = {
     action: 'unblockRegistration',
-    adminSecret,
+    adminSecret: secret,
     registrationId,
   };
 
-  const response = await fetch(APPS_SCRIPT_URL, {
+  const url = `${APPS_SCRIPT_URL}?adminSecret=${encodeURIComponent(secret)}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload),
@@ -387,13 +412,15 @@ export async function addTeamManually(
   payloadData: AdminAddTeamPayload,
   adminSecret: string = getStoredAdminSecret()
 ): Promise<{ registrationId: string }> {
+  const secret = (adminSecret || getStoredAdminSecret()).trim();
   const payload = {
     action: 'addTeam',
-    adminSecret,
+    adminSecret: secret,
     ...payloadData,
   };
 
-  const response = await fetch(APPS_SCRIPT_URL, {
+  const url = `${APPS_SCRIPT_URL}?adminSecret=${encodeURIComponent(secret)}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload),
@@ -417,16 +444,18 @@ export async function updatePaymentStatus(
   adminNotes?: string,
   adminSecret: string = getStoredAdminSecret()
 ): Promise<void> {
+  const secret = (adminSecret || getStoredAdminSecret()).trim();
   const payload = {
     action: 'updatePaymentStatus',
-    adminSecret,
+    adminSecret: secret,
     registrationId,
     paymentStatus,
     transactionId,
     adminNotes,
   };
 
-  const response = await fetch(APPS_SCRIPT_URL, {
+  const url = `${APPS_SCRIPT_URL}?adminSecret=${encodeURIComponent(secret)}`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload),
@@ -435,5 +464,40 @@ export async function updatePaymentStatus(
   const data = await response.json();
   if (!data.success) {
     throw new Error(data.error || 'Failed to update payment status');
+  }
+}
+
+/**
+ * Diagnostic action to check admin authentication status
+ * Calls Apps Script Web App ?action=adminAuthCheck&adminSecret=...
+ */
+export async function checkAdminAuth(
+  adminSecret: string = getStoredAdminSecret()
+): Promise<{ success: boolean; authenticated: boolean; error?: string }> {
+  const secret = (adminSecret || getStoredAdminSecret()).trim();
+  const url = `${APPS_SCRIPT_URL}?action=adminAuthCheck&adminSecret=${encodeURIComponent(secret)}&t=${Date.now()}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+    });
+
+    if (!response.ok) {
+      return { success: false, authenticated: false, error: `HTTP ${response.status}` };
+    }
+
+    const data = await response.json();
+    return {
+      success: Boolean(data.success),
+      authenticated: Boolean(data.authenticated),
+      error: data.error,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      authenticated: false,
+      error: err instanceof Error ? err.message : String(err),
+    };
   }
 }

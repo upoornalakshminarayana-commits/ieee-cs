@@ -247,7 +247,7 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
   }, [])
 
   // Load Data
-  const loadData = useCallback(async (isRefresh = false) => {
+  const loadData = useCallback(async (isRefresh = false, secretOverride?: string) => {
     if (isRefresh) {
       setRefreshing(true)
     } else {
@@ -256,7 +256,8 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
     setError(null)
 
     try {
-      const result = await fetchAdminRegistrations()
+      const keyToUse = (secretOverride !== undefined ? secretOverride : adminKey || getStoredAdminSecret()).trim()
+      const result = await fetchAdminRegistrations(keyToUse)
       setRegistrations(result.registrations)
       setStats(result.stats)
       setSettings(result.settings)
@@ -275,7 +276,7 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
       setLoading(false)
       setRefreshing(false)
     }
-  }, [])
+  }, [adminKey])
 
   useEffect(() => {
     loadData()
@@ -283,10 +284,12 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
 
   // Save updated Admin Key
   const handleSaveAdminKey = (newKey: string) => {
-    setAdminKey(newKey)
-    setStoredAdminSecret(newKey)
+    const trimmed = newKey.trim()
+    setAdminKey(trimmed)
+    setStoredAdminSecret(trimmed)
     setShowKeyInput(false)
-    showToast('success', 'Admin Secret Key updated for write operations.')
+    showToast('success', 'Admin Secret Key updated. Refreshing data...')
+    loadData(true, trimmed)
   }
 
   // Extract distinct departments and years
@@ -1097,10 +1100,21 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
             <AlertCircle size={36} className="state-error-icon" />
             <h3 className="state-title">Failed to Load Registrations</h3>
             <p className="state-desc">{error}</p>
-            <button type="button" className="btn-admin-retry" onClick={() => loadData(false)}>
-              <RefreshCw size={14} />
-              <span>Retry Fetching</span>
-            </button>
+            <div style={{ display: 'flex', gap: '10px', marginTop: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button type="button" className="btn-admin-retry" onClick={() => loadData(false)}>
+                <RefreshCw size={14} />
+                <span>Retry Fetching</span>
+              </button>
+              <button
+                type="button"
+                className="btn-admin-retry"
+                style={{ borderColor: 'rgba(212, 152, 24, 0.6)', background: 'rgba(212, 152, 24, 0.15)' }}
+                onClick={() => setShowKeyInput(true)}
+              >
+                <Key size={14} />
+                <span>Enter Admin Key</span>
+              </button>
+            </div>
           </div>
         ) : filteredRegistrations.length === 0 ? (
           <div className="admin-status-state state-empty">

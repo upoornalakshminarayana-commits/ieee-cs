@@ -115,16 +115,87 @@ var HEADERS = [
 // ==============================================================================
 
 /**
- * Validates the admin secret provided in request against PropertiesService
+ * Helper to extract incoming admin secret from multiple possible locations:
+ * - explicit parameter: secret
+ * - request query params: e.parameter.adminSecret or e.parameter.secret
+ * - parsed JSON body: data.adminSecret or data.secret
  */
-function verifyAdminAuth(secret) {
+function extractIncomingSecret(secret, e, data) {
+  if (secret !== undefined && secret !== null && String(secret).trim() !== "") {
+    return String(secret).trim();
+  }
+  if (data && typeof data === "object") {
+    if (data.adminSecret !== undefined && data.adminSecret !== null && String(data.adminSecret).trim() !== "") {
+      return String(data.adminSecret).trim();
+    }
+    if (data.secret !== undefined && data.secret !== null && String(data.secret).trim() !== "") {
+      return String(data.secret).trim();
+    }
+  }
+  if (e && e.parameter) {
+    if (e.parameter.adminSecret !== undefined && e.parameter.adminSecret !== null && String(e.parameter.adminSecret).trim() !== "") {
+      return String(e.parameter.adminSecret).trim();
+    }
+    if (e.parameter.secret !== undefined && e.parameter.secret !== null && String(e.parameter.secret).trim() !== "") {
+      return String(e.parameter.secret).trim();
+    }
+  }
+  return "";
+}
+
+/**
+ * Reads configured ADMIN_SECRET from Script Properties with trimming.
+ * Falls back to CONFIG.DEFAULT_ADMIN_SECRET if not set.
+ */
+function getConfiguredAdminSecret() {
   var props = PropertiesService.getScriptProperties();
-  var storedSecret = props.getProperty("ADMIN_SECRET") || CONFIG.DEFAULT_ADMIN_SECRET;
-  
-  if (!secret || secret.toString().trim() !== storedSecret.toString().trim()) {
+  var configured = String(props.getProperty("ADMIN_SECRET") || "").trim();
+  if (configured !== "") {
+    return configured;
+  }
+  return String(CONFIG.DEFAULT_ADMIN_SECRET || "").trim();
+}
+
+/**
+ * Validates the admin secret provided in request against PropertiesService.
+ * Sanitized diagnostic logging included (NEVER exposes actual secret values).
+ */
+function verifyAdminAuth(secret, e, data) {
+  var incomingSecret = extractIncomingSecret(secret, e, data);
+  var configuredSecret = getConfiguredAdminSecret();
+
+  var hasIncomingSecret = Boolean(incomingSecret && incomingSecret.length > 0);
+  var hasConfiguredSecret = Boolean(configuredSecret && configuredSecret.length > 0);
+  var secretLengthMatches = incomingSecret.length === configuredSecret.length;
+
+  Logger.log("Admin auth diagnostic: " + JSON.stringify({
+    hasIncomingSecret: hasIncomingSecret,
+    hasConfiguredSecret: hasConfiguredSecret,
+    secretLengthMatches: secretLengthMatches,
+    incomingLength: incomingSecret.length,
+    configuredLength: configuredSecret.length
+  }));
+
+  if (!hasIncomingSecret || !hasConfiguredSecret || incomingSecret !== configuredSecret) {
     throw new Error("Unauthorized: Invalid Admin Secret key.");
   }
   return true;
+}
+
+/**
+ * Non-throwing authentication checker for diagnostics and UI auth check
+ */
+function checkAdminAuthStatus(secret, e, data) {
+  var incomingSecret = extractIncomingSecret(secret, e, data);
+  var configuredSecret = getConfiguredAdminSecret();
+
+  var hasIncomingSecret = Boolean(incomingSecret && incomingSecret.length > 0);
+  var hasConfiguredSecret = Boolean(configuredSecret && configuredSecret.length > 0);
+
+  if (!hasIncomingSecret || !hasConfiguredSecret) {
+    return false;
+  }
+  return incomingSecret === configuredSecret;
 }
 
 /**
@@ -249,6 +320,14 @@ function doGet(e) {
       });
     }
 
+    if (action === "adminAuthCheck") {
+      var isAuthenticated = checkAdminAuthStatus(null, e, null);
+      return createJsonResponse({
+        success: isAuthenticated,
+        authenticated: isAuthenticated
+      });
+    }
+
     if (action === "getSettings" || action === "getRegistrationAvailability") {
       var availability = checkRegistrationAvailability();
       return createJsonResponse({
@@ -266,6 +345,8 @@ function doGet(e) {
     }
 
     // Default action: Return registrations with calculated FCFS + current settings
+    // Enforces admin verification to protect sensitive squad data
+    verifyAdminAuth(null, e, null);
     return handleGetRegistrations();
   } catch (err) {
     Logger.log("doGet error: " + err.toString());
@@ -503,7 +584,13 @@ function doPost(e) {
     var action = data.action || (e.parameter && e.parameter.action) || "";
 
     // Route Actions
-    if (action === "getSettings" || action === "getRegistrationAvailability") {
+    if (action === "adminAuthCheck") {
+      var isAuth = checkAdminAuthStatus(data.adminSecret, e, data);
+      return createJsonResponse({
+        success: isAuth,
+        authenticated: isAuth
+      });
+    } else if (action === "getSettings" || action === "getRegistrationAvailability") {
       var availability = checkRegistrationAvailability();
       return createJsonResponse({
         success: true,
@@ -518,15 +605,15 @@ function doPost(e) {
         settings: availability
       });
     } else if (action === "updateSettings") {
-      return handleUpdateSettings(data);
+      return handleUpdateSettings(data, e);
     } else if (action === "blockRegistration") {
-      return handleBlockRegistration(data);
+      return handleBlockRegistration(data, e);
     } else if (action === "unblockRegistration") {
-      return handleUnblockRegistration(data);
+      return handleUnblockRegistration(data, e);
     } else if (action === "addTeam") {
-      return handleAdminAddTeam(data);
+      return handleAdminAddTeam(data, e);
     } else if (action === "updatePaymentStatus") {
-      return handleUpdatePaymentStatus(data);
+      return handleUpdatePaymentStatus(data, e);
     }
 
     // Default: Public Squad Registration
@@ -698,8 +785,8 @@ function handlePublicRegistration(data) {
 /**
  * Admin Action: Update Registration Settings (Limit, Timings, Status Override)
  */
-function handleUpdateSettings(data) {
-  verifyAdminAuth(data.adminSecret);
+function handleUpdateSettings(data, e) {
+  verifyAdminAuth(data ? data.adminSecret : null, e, data);
 
   var props = PropertiesService.getScriptProperties();
 
@@ -738,8 +825,8 @@ function handleUpdateSettings(data) {
 /**
  * Admin Action: Block a registration
  */
-function handleBlockRegistration(data) {
-  verifyAdminAuth(data.adminSecret);
+function handleBlockRegistration(data, e) {
+  verifyAdminAuth(data ? data.adminSecret : null, e, data);
 
   if (!data.registrationId) {
     throw new Error("Missing registrationId for block action.");
@@ -779,8 +866,8 @@ function handleBlockRegistration(data) {
 /**
  * Admin Action: Unblock a registration
  */
-function handleUnblockRegistration(data) {
-  verifyAdminAuth(data.adminSecret);
+function handleUnblockRegistration(data, e) {
+  verifyAdminAuth(data ? data.adminSecret : null, e, data);
 
   if (!data.registrationId) {
     throw new Error("Missing registrationId for unblock action.");
@@ -814,8 +901,8 @@ function handleUnblockRegistration(data) {
 /**
  * Admin Action: Manually Add a Team to Sheet1
  */
-function handleAdminAddTeam(data) {
-  verifyAdminAuth(data.adminSecret);
+function handleAdminAddTeam(data, e) {
+  verifyAdminAuth(data ? data.adminSecret : null, e, data);
 
   if (!data.teamName || !data.teamName.toString().trim()) {
     throw new Error("Team Name is required.");
@@ -941,8 +1028,8 @@ function handleAdminAddTeam(data) {
 /**
  * Admin Action: Update Payment Status & Transaction ID
  */
-function handleUpdatePaymentStatus(data) {
-  verifyAdminAuth(data.adminSecret);
+function handleUpdatePaymentStatus(data, e) {
+  verifyAdminAuth(data ? data.adminSecret : null, e, data);
 
   if (!data.registrationId) {
     throw new Error("Missing registrationId for payment update.");
