@@ -1,0 +1,274 @@
+/* ============================================================
+   KHEPRIX 2K26 — Navigation Styles
+   Reveals smoothly only after scrolling past Landing Page
+   ============================================================ */
+
+.nav-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 250;
+  padding: 0.7rem 1.5rem;
+  background: rgba(16, 10, 5, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 2px solid #855b2d;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.95);
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease-cinematic), transform 0.4s var(--ease-cinematic);
+}
+
+/* Spot 1: Appears as an Ancient Rusted Bronze Frieze with Verdigris Seam when scrolled */
+.nav-root.nav-scrolled {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(140, 60, 20, 0.25) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(26, 16, 9, 0.98) 0%, rgba(12, 7, 3, 0.99) 100%);
+  border-bottom: 2px solid #a67c38;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.98),
+    0 2px 10px rgba(45, 110, 90, 0.35); /* Verdigris green glow */
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+/* Logo */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+}
+
+.nav-scarab-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffeaa0 0%, #f3be3a 60%, #9c7117 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(243, 190, 58, 0.5);
+  border: 1px solid #fff;
+  transition: transform 0.3s ease;
+}
+
+.nav-logo:hover .nav-scarab-badge {
+  transform: rotate(15deg) scale(1.08);
+}
+
+.nav-scarab-glyph {
+  font-size: 1.2rem;
+  color: #120902;
+}
+
+.nav-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-logo-title {
+  font-family: var(--font-pharaoh);
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #fff280 0%, #f3be3a 60%, #c68a12 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.nav-logo-sub {
+  font-family: var(--font-heading);
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  color: #c4b08d;
+  font-weight: 700;
+}
+
+/* Desktop Links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2.2rem);
+  list-style: none;
+}
+
+.nav-link-btn {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: #ecd9b7;
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0.4rem 0;
+}
+
+.nav-link-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, #f3be3a, #ffeaa0);
+  transition: width 0.3s ease;
+  box-shadow: 0 0 8px rgba(243, 190, 58, 0.8);
+}
+
+.nav-link-btn:hover {
+  color: var(--color-gold-bright);
+}
+
+.nav-link-btn:hover::after {
+  width: 100%;
+}
+
+/* Right Actions */
+.nav-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-register-btn {
+  padding: 0.6em 1.5em;
+  font-size: 0.78rem;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.nav-mobile-toggle {
+  display: none;
+  color: var(--color-gold);
+  padding: 0.4rem;
+}
+
+/* Drawer Backdrop */
+.nav-mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 280;
+}
+
+/* Spot 7: Mobile Drawer as Rusted Iron Tomb Portcullis Door */
+.nav-mobile-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 85vw);
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(140, 55, 15, 0.35) 0%, transparent 50%),
+    linear-gradient(180deg, #1f1207 0%, #120903 100%);
+  border-left: 3px solid #7c5025;
+  backdrop-filter: blur(20px);
+  z-index: 300;
+  padding: 2.5rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  transform: translateX(100%);
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    -15px 0 45px rgba(0,0,0,0.98),
+    inset 2px 0 6px rgba(255, 200, 100, 0.15);
+}
+
+.nav-mobile-drawer.open {
+  transform: translateX(0);
+}
+
+.nav-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(243, 190, 58, 0.3);
+}
+
+.drawer-glyph {
+  color: var(--color-gold);
+  font-size: 1.2rem;
+}
+
+.drawer-brand {
+  font-family: var(--font-pharaoh);
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--color-gold-bright);
+}
+
+.nav-drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.nav-drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #ecd9b7;
+  padding: 0.8rem 1rem;
+  border-radius: 6px;
+  background: rgba(30, 20, 10, 0.6);
+  border: 1px solid rgba(243, 190, 58, 0.2);
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.nav-drawer-item:hover {
+  background: rgba(45, 28, 14, 0.9);
+  border-color: var(--color-gold);
+  color: var(--color-gold-bright);
+}
+
+.drawer-item-glyph {
+  color: var(--color-gold);
+  font-size: 1.1rem;
+}
+
+.nav-drawer-cta {
+  margin-top: auto;
+  width: 100%;
+  font-size: 0.82rem;
+  padding: 1em;
+}
+
+/* Mobile Breakpoint */
+@media (max-width: 860px) {
+  .nav-links {
+    display: none;
+  }
+  .nav-mobile-toggle {
+    display: flex;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav-register-btn {
+    display: none;
+  }
+}
+

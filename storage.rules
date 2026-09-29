@@ -1,0 +1,12 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow unauthenticated upload of payment screenshots with size and type restrictions.
+    match /payment-screenshots/{registrationId}/{fileName} {
+      allow write: if request.resource.size < 2 * 1024 * 1024 &&
+                     request.resource.contentType.matches('image/(jpeg|png|webp)');
+      // Disallow read and delete from clients.
+      allow read, delete: if false;
+    }
+  }
+}

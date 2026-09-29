@@ -1,0 +1,1220 @@
+/* ============================================================
+   KHEPRIX 2K26 — Registration Form Styles
+   AUTHENTIC OLD RUSTED PAPYRUS & ANCIENT PARCHMENT PAPER THEME
+   Warm Tea-Stained Reed Paper, Scorched Rust Edges, Sepia Ink
+   ============================================================ */
+
+/* ── The Antique Papyrus Paper Scroll Container ── */
+.reg-papyrus-scroll {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  border-radius: 8px;
+  padding: clamp(1.6rem, 3.5vh, 2.6rem) clamp(1.4rem, 3vw, 2.5rem);
+  
+  /* Genuine Ancient Aged Papyrus Background with Rust Scorches & Tea Stains */
+  background-color: #e5cfab;
+  background-image: 
+    /* Scorched burnt rust corner vignettes */
+    radial-gradient(ellipse at 0% 0%, rgba(85, 45, 15, 0.7) 0%, transparent 45%),
+    radial-gradient(ellipse at 100% 0%, rgba(85, 45, 15, 0.65) 0%, transparent 45%),
+    radial-gradient(ellipse at 0% 100%, rgba(75, 38, 12, 0.75) 0%, transparent 45%),
+    radial-gradient(ellipse at 100% 100%, rgba(75, 38, 12, 0.8) 0%, transparent 45%),
+    /* Watermark / foxing rust blotches */
+    radial-gradient(circle at 30% 40%, rgba(138, 86, 38, 0.22) 0%, transparent 40%),
+    radial-gradient(circle at 75% 65%, rgba(120, 72, 28, 0.25) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(160, 100, 45, 0.2) 0%, transparent 35%),
+    /* Horizontal & vertical coarse woven papyrus reed fiber grid */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(90, 52, 20, 0.08) 3px,
+      rgba(90, 52, 20, 0.08) 5px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(90, 52, 20, 0.06) 3px,
+      rgba(90, 52, 20, 0.06) 5px
+    ),
+    /* Aged sepia paper gradient */
+    linear-gradient(175deg, 
+      #eedebf 0%, 
+      #e8d3ac 20%, 
+      #dfc698 50%, 
+      #d4b986 75%, 
+      #c4a36c 100%
+    );
+
+  /* Scorched deckled rust paper borders */
+  border: 3px solid #7d491f;
+  outline: 2px dashed rgba(100, 55, 20, 0.5);
+  outline-offset: -7px;
+  
+  box-shadow: 
+    0 30px 80px rgba(0, 0, 0, 0.98),
+    0 10px 30px rgba(45, 22, 6, 0.8),
+    inset 0 0 45px rgba(95, 52, 18, 0.4),
+    inset 0 0 10px rgba(50, 24, 6, 0.6);
+  
+  overflow: hidden;
+  color: #2b1708;
+}
+
+/* ── Antique Scroll Roller Rods at Top and Bottom ── */
+.papyrus-scroll-rod {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(100% + 2rem);
+  margin-left: -1rem;
+  height: 20px;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.papyrus-scroll-rod.rod-top {
+  margin-bottom: 1.2rem;
+  margin-top: -0.6rem;
+}
+
+.papyrus-scroll-rod.rod-bottom {
+  margin-top: 1.5rem;
+  margin-bottom: -0.8rem;
+}
+
+.rod-cylinder {
+  flex: 1;
+  height: 13px;
+  background: linear-gradient(
+    180deg,
+    #3b1c09 0%,
+    #7a3f14 28%,
+    #a86026 50%,
+    #5a2b0d 75%,
+    #241005 100%
+  );
+  border-radius: 6px;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 230, 180, 0.5),
+    inset 0 -1px 3px rgba(0, 0, 0, 0.8);
+  border-top: 1px solid #c88842;
+  border-bottom: 1px solid #200d04;
+}
+
+.rod-finial {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #e2ab5b 0%, #a26522 55%, #421e06 100%);
+  border: 1.5px solid #ffde94;
+  box-shadow: 
+    0 3px 8px rgba(0, 0, 0, 0.7),
+    inset 0 1px 3px rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #2b1202;
+  font-weight: 900;
+  text-shadow: 0 1px 1px rgba(255, 235, 180, 0.8);
+  flex-shrink: 0;
+}
+
+/* ── Terracotta Wax Seal in Top-Right Corner ── */
+.papyrus-corner-wax-seal {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b83314 0%, #7e1e07 60%, #460c02 100%);
+  border: 2px solid #df806a;
+  box-shadow: 
+    0 4px 12px rgba(45, 15, 5, 0.6),
+    0 1px 3px rgba(0, 0, 0, 0.7),
+    inset 0 2px 4px rgba(255, 210, 190, 0.5),
+    inset 0 -2px 6px rgba(40, 8, 2, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 8;
+  pointer-events: none;
+  transform: rotate(12deg);
+}
+
+.wax-seal-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.wax-scarab {
+  font-size: 1.25rem;
+  color: #fae2cc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.wax-text {
+  font-family: var(--font-heading);
+  font-size: 0.42rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #f7d4b8;
+  margin-top: 1px;
+}
+
+.wax-ribbon-tail {
+  position: absolute;
+  bottom: -10px;
+  width: 14px;
+  height: 14px;
+  background: #7e1e07;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ── Decorative Papyrus Fiber Watermark ── */
+.papyrus-pulp-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: clamp(2rem, 8vw, 6rem);
+  font-size: clamp(4rem, 10vw, 8rem);
+  color: rgba(90, 48, 16, 0.05);
+  pointer-events: none;
+  user-select: none;
+  z-index: 1;
+  letter-spacing: 0.2em;
+}
+
+/* Aged torn papyrus header & scroll rolls */
+.reg-scroll-header {
+  text-align: center;
+  margin-bottom: 1.4rem;
+  position: relative;
+  z-index: 5;
+}
+
+/* Antique Royal Cartouche Stamp on Paper */
+.reg-cartouche-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 1.2rem;
+  background: radial-gradient(circle at 40% 35%, #7a461b 0%, #3e1f08 100%);
+  border: 1.5px solid #b8833e;
+  border-radius: 25px;
+  color: #faedd0;
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  margin-bottom: 0.6rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 230, 180, 0.4);
+}
+
+.reg-title {
+  font-family: var(--font-pharaoh);
+  font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #2a1506;
+  text-shadow: 0 1px 1px rgba(255, 240, 210, 0.8), 0 2px 4px rgba(60, 30, 10, 0.25);
+}
+
+.reg-subtitle {
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  color: #4a2b12;
+  margin-top: 0.2rem;
+  font-weight: 600;
+}
+
+/* ── Fee Banner as Rusted Stamped Royal Certificate ── */
+.reg-fee-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 1rem;
+  padding: 0.75rem 1.4rem;
+  background: radial-gradient(ellipse at 50% 50%, #fbf3e2 0%, #ecd6b0 100%);
+  border: 2px solid #8e5525;
+  border-radius: 8px;
+  box-shadow: 
+    0 4px 15px rgba(60, 30, 10, 0.3),
+    inset 0 0 15px rgba(160, 95, 35, 0.15);
+  position: relative;
+}
+
+.reg-fee-banner::before {
+  content: '★';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9c5c24;
+  font-size: 1rem;
+}
+
+.reg-fee-banner::after {
+  content: '★';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9c5c24;
+  font-size: 1rem;
+}
+
+.fee-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.fee-label {
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  color: #613410;
+}
+
+.fee-amount {
+  font-family: var(--font-pharaoh);
+  font-size: 1.55rem;
+  font-weight: 900;
+  color: #8c2612; /* Aged Egyptian red ochre stamp ink */
+  letter-spacing: 0.05em;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+.fee-note {
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  color: #563318;
+  font-weight: 600;
+}
+
+/* Form Container */
+.reg-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  position: relative;
+  z-index: 5;
+}
+
+/* Team Name Banner on Paper */
+.reg-team-banner {
+  background: rgba(255, 248, 235, 0.65);
+  border: 1.5px solid #9c6c3e;
+  padding: 0.9rem 1.1rem;
+  border-radius: 6px;
+  box-shadow: inset 0 2px 5px rgba(80, 45, 15, 0.15);
+}
+
+.team-name-label {
+  font-size: 0.78rem;
+  margin-bottom: 0.4rem;
+  color: #3e220b;
+  font-weight: 800;
+}
+
+.team-input {
+  font-size: 0.95rem;
+  font-weight: 700;
+  background: #fdfaf2 !important;
+  color: #1e0e04 !important;
+  border: 1.5px solid #8c5826 !important;
+}
+
+/* ── 4 Member Selector Tabs (Aged Parchment Index Slips) ── */
+.reg-member-tabs-container {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.reg-member-tabs {
+  display: flex;
+  gap: 0.35rem;
+  border-bottom: 2px solid #7c481d;
+  padding-bottom: 2px;
+  min-width: max-content;
+}
+
+.member-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.85rem;
+  background: #d4b888;
+  border: 1.5px solid #8e5828;
+  border-bottom: none;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  color: #3b200b;
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  box-shadow: inset 0 1px 2px rgba(255, 240, 210, 0.5);
+}
+
+.member-tab-btn:hover {
+  background: #e2cb9f;
+  color: #1a0c03;
+  transform: translateY(-1px);
+}
+
+/* Active Unrolled Parchment Tab */
+.member-tab-btn.active {
+  background: #fdf6e6;
+  border-color: #6a3a14;
+  color: #1c0c02;
+  box-shadow: 
+    0 -3px 8px rgba(60, 30, 10, 0.25),
+    inset 0 1px 3px rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+  border-bottom: 2px solid #fdf6e6;
+  z-index: 2;
+}
+
+.member-tab-btn.tab-error {
+  border-color: #a82424;
+  color: #8c1616;
+  background: #f0c8c8;
+}
+
+.tab-glyph {
+  font-size: 0.8rem;
+  color: #7c481d;
+}
+
+.member-tab-btn.active .tab-glyph {
+  color: #b5621a;
+}
+
+.tab-check-icon {
+  color: #2b7a3e;
+  flex-shrink: 0;
+}
+
+.tab-alert-icon {
+  color: #b32424;
+  flex-shrink: 0;
+}
+
+.payment-tab-btn {
+  background: #ceaf7b;
+  border-color: #7d491f;
+}
+
+.payment-tab-btn.active {
+  background: #fef7e9;
+  border-color: #6a3a14;
+}
+
+/* ── Member Details Pane (Parchment Paper Card) ── */
+.member-details-pane,
+.payment-upload-pane {
+  background: rgba(255, 250, 240, 0.7);
+  border: 1.5px solid #8e5828;
+  border-radius: 8px;
+  padding: 1.25rem;
+  box-shadow: 
+    inset 0 2px 6px rgba(70, 38, 12, 0.15),
+    0 4px 15px rgba(50, 25, 8, 0.1);
+  animation: fadeInPane 0.3s ease;
+}
+
+@keyframes fadeInPane {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.member-pane-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed rgba(120, 68, 24, 0.4);
+}
+
+.pane-number {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #3b1e09;
+}
+
+.pane-count-badge {
+  font-family: var(--font-heading);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  color: #4a280d;
+  background: #edd8b4;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid #9c6c3e;
+  font-weight: 700;
+}
+
+/* Rows & Fields on Paper */
+.reg-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reg-row-triplet {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.8fr;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.reg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  position: relative;
+}
+
+.reg-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #381e09;
+}
+
+/* Inked Indented Paper Slots for Inputs */
+.reg-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: #fdfaf2;
+  border: 1.5px solid #9c6838;
+  border-radius: 5px;
+  color: #1e0d03;
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.25s ease;
+  box-shadow: inset 0 2px 4px rgba(70, 38, 12, 0.15);
+}
+
+.reg-input::placeholder {
+  color: #8c6e52;
+  opacity: 0.75;
+}
+
+.reg-input:focus {
+  border-color: #b5621a;
+  background: #ffffff;
+  box-shadow: 
+    0 0 10px rgba(181, 98, 26, 0.35),
+    inset 0 1px 3px rgba(70, 38, 12, 0.1);
+  transform: translateY(-1px);
+}
+
+.reg-input.has-error {
+  border-color: #b82626;
+  background: #fff3f3;
+  box-shadow: 0 0 12px rgba(184, 38, 38, 0.35);
+  animation: stoneTremorShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+select.reg-input {
+  cursor: pointer;
+  appearance: auto;
+  font-family: var(--font-body);
+}
+
+select.reg-input option {
+  background: #fdfaf2;
+  color: #1e0d03;
+  padding: 0.4rem;
+}
+
+.reg-row-full {
+  width: 100%;
+}
+
+@keyframes stoneTremorShake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(3px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.reg-error-msg {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  color: #9e1a1a;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.15rem;
+  font-weight: 700;
+}
+
+.error-glyph {
+  color: #9e1a1a;
+  font-size: 0.8rem;
+}
+
+/* Member Navigation Row */
+.member-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.2rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(130, 75, 28, 0.3);
+}
+
+.btn-member-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  background: #e5cb9b;
+  border: 1.5px solid #8e5828;
+  border-radius: 6px;
+  color: #321907;
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(60, 30, 10, 0.2);
+}
+
+.btn-member-nav:hover {
+  background: #f5dfb8;
+  border-color: #6a3a14;
+  color: #100601;
+  transform: translateY(-1px);
+}
+
+.btn-member-nav.next {
+  background: radial-gradient(circle at 40% 30%, #8c5222 0%, #542b0c 100%);
+  border-color: #b87c3a;
+  color: #fcf4e6;
+  box-shadow: 0 3px 8px rgba(50, 25, 8, 0.3);
+}
+
+.btn-member-nav.next:hover {
+  background: radial-gradient(circle at 40% 30%, #a4642e 0%, #683510 100%);
+  color: #ffffff;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+
+/* ── Payment Upload Pane (Ancient Envelope Styling) ── */
+.payment-instructions-box {
+  margin-bottom: 1.2rem;
+}
+
+.pay-instruction-lead {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #3a1e08;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+}
+
+/* ── Bank Ledger Card (Ancient Treasury Ledger Style) ── */
+.pay-bank-ledger-card {
+  background: #fdf6e6;
+  border: 2px solid #8e5828;
+  border-radius: 8px;
+  padding: 1.1rem;
+  box-shadow: 
+    0 4px 15px rgba(60, 30, 10, 0.2),
+    inset 0 0 15px rgba(160, 95, 35, 0.1);
+  position: relative;
+}
+
+.bank-ledger-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1.5px dashed rgba(142, 88, 40, 0.4);
+}
+
+.bank-ledger-icon {
+  color: #8c5222;
+}
+
+.bank-ledger-title {
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #3b1e08;
+}
+
+.bank-ledger-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.bank-ledger-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid #a67445;
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  box-shadow: inset 0 1px 3px rgba(80, 45, 15, 0.08);
+}
+
+.bank-ledger-field.highlighted-field {
+  background: #fffdf8;
+  border-color: #8c4e1a;
+  border-width: 2px;
+  box-shadow: 0 2px 8px rgba(140, 78, 26, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.bank-ledger-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.field-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.field-label {
+  font-family: var(--font-heading);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #633611;
+}
+
+.field-val {
+  font-family: var(--font-heading);
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #1e0e04;
+}
+
+.field-val.number-font {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.05rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #1a0b02;
+}
+
+.field-val.ifsc-font {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.02rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: #82220d;
+}
+
+.gold-accent {
+  color: #8c2612;
+  font-size: 1.02rem;
+  font-weight: 900;
+}
+
+.btn-copy-ledger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  background: radial-gradient(circle at 40% 30%, #8e5828 0%, #582f10 100%);
+  border: 1.5px solid #b87c3a;
+  border-radius: 4px;
+  color: #fef7ec;
+  font-family: var(--font-heading);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(60, 30, 10, 0.25);
+}
+
+.btn-copy-ledger:hover {
+  background: radial-gradient(circle at 40% 30%, #ab6932 0%, #6e3a14 100%);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-copy-ledger:active {
+  transform: translateY(0);
+}
+
+.copied-icon {
+  color: #2b7a3e;
+}
+
+.bank-ledger-note {
+  margin-top: 0.85rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: #4a280d;
+  font-weight: 600;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.bank-ledger-note span {
+  font-size: 0.95rem;
+  color: #8c5222;
+}
+
+@media (max-width: 600px) {
+  .bank-ledger-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Upload Dropzone (Parchment Texture) */
+.file-hidden-input {
+  display: none;
+}
+
+.upload-dropzone {
+  border: 2px dashed #9c6838;
+  background: rgba(254, 250, 240, 0.85);
+  border-radius: 8px;
+  padding: 1.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: center;
+}
+
+.upload-dropzone:hover {
+  border-color: #6a3a14;
+  background: #ffffff;
+}
+
+.upload-dropzone.has-error {
+  border-color: #b82626;
+  background: #fff3f3;
+}
+
+.dropzone-icon {
+  color: #8c5222;
+}
+
+.dropzone-text {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #2b1708;
+}
+
+.dropzone-sub {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: #6a4422;
+  font-weight: 600;
+}
+
+.btn-browse-file {
+  margin-top: 0.4rem;
+  padding: 0.45rem 1.1rem;
+  background: #8c5222;
+  border: 1.5px solid #5a300d;
+  border-radius: 4px;
+  color: #fdf5e7;
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(60, 30, 10, 0.25);
+}
+
+.btn-browse-file:hover {
+  background: #a4642e;
+  color: #ffffff;
+}
+
+/* Screenshot Preview Card */
+.screenshot-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: #fbf5e6;
+  border: 1.5px solid #8c5826;
+  border-radius: 8px;
+  padding: 0.9rem;
+  box-shadow: 0 4px 12px rgba(60, 30, 10, 0.15);
+}
+
+.preview-img-thumb {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1.5px solid #8e5828;
+}
+
+.preview-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.preview-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #1b632c;
+}
+
+.preview-filename {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: #381e09;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.btn-replace-shot {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px solid #a83232;
+  border-radius: 4px;
+  color: #9e1a1a;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-replace-shot:hover {
+  background: #a83232;
+  color: #ffffff;
+}
+
+/* Submit Action Button on Paper */
+.submit-action-cluster {
+  margin-top: 0.6rem;
+}
+
+.reg-submit-btn {
+  width: 100%;
+  padding: 1.2em;
+  font-size: 0.95rem;
+  letter-spacing: 0.14em;
+  background: radial-gradient(circle at 40% 30%, #8f4c19 0%, #4a2107 100%);
+  border: 2px solid #b87c3a;
+  color: #fdf5e7;
+  box-shadow: 
+    0 6px 20px rgba(50, 22, 6, 0.4),
+    inset 0 1px 2px rgba(255, 230, 180, 0.4);
+}
+
+.reg-submit-btn:hover {
+  background: radial-gradient(circle at 40% 30%, #ab5e22 0%, #5c2c0d 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 25px rgba(50, 22, 6, 0.5);
+}
+
+/* ── Success Card with Excavation Parchment Certificate ── */
+.reg-success-box {
+  text-align: center;
+  padding: 1.8rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  animation: scrollPassReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes scrollPassReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.reg-seal-stamp {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c43818 0%, #821f08 60%, #4a0d02 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #fce8c8;
+  box-shadow: 
+    0 0 35px rgba(184, 50, 20, 0.6),
+    0 8px 25px rgba(50, 15, 5, 0.5),
+    inset 0 2px 6px rgba(255, 255, 255, 0.5);
+  animation: stampSlam 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes stampSlam {
+  0% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.stamp-glyph {
+  font-size: 2.5rem;
+  color: #faeed4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.reg-success-title {
+  font-family: var(--font-pharaoh);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 900;
+  color: #2b1405;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.reg-success-msg {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: #3e220c;
+  line-height: 1.5;
+  max-width: 580px;
+  font-weight: 600;
+}
+
+.reg-fee-verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1.3rem;
+  background: #fbf5e6;
+  border: 1.5px solid #2b7a3e;
+  border-radius: 20px;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #1b632c;
+  box-shadow: 0 3px 10px rgba(40, 120, 60, 0.15);
+}
+
+.success-icon {
+  color: #1b632c;
+  flex-shrink: 0;
+}
+
+/* Squad Roster */
+.success-squad-roster {
+  width: 100%;
+  margin-top: 0.8rem;
+  text-align: left;
+}
+
+.roster-heading {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: #3b1e09;
+  text-align: center;
+  margin-bottom: 0.9rem;
+  font-weight: 800;
+}
+
+.roster-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.roster-member-card {
+  background: #fbf5e6;
+  border: 1.5px solid #8e5828;
+  border-radius: 6px;
+  padding: 0.85rem;
+  font-size: 0.76rem;
+  box-shadow: 0 2px 6px rgba(60, 30, 10, 0.12);
+}
+
+.roster-badge {
+  font-family: var(--font-heading);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #8c2612;
+  margin-bottom: 0.2rem;
+}
+
+.roster-name {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  color: #1c0d03;
+  margin-bottom: 0.35rem;
+  font-weight: 800;
+}
+
+.roster-meta {
+  color: #5a3818;
+  margin-bottom: 0.15rem;
+  font-weight: 600;
+}
+
+.roster-meta span {
+  color: #1c0d03;
+  font-weight: 700;
+}
+
+/* Success Action Cluster */
+.success-actions-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  margin-top: 1.4rem;
+}
+
+.btn-download-receipt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  width: 100%;
+  max-width: 440px;
+  padding: 1.05rem 2rem;
+  font-family: var(--font-heading);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #120902;
+  background: linear-gradient(135deg, #fff6a8 0%, #f3be3a 40%, #d49818 70%, #946508 100%);
+  border: 1px solid #fffae0;
+  border-radius: 6px;
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  box-shadow: 
+    0 6px 20px rgba(243, 190, 58, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-download-receipt:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, #ffffff 0%, #ffeaa0 35%, #f3be3a 70%, #b8860b 100%);
+  box-shadow: 
+    0 10px 28px rgba(243, 190, 58, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
+.whatsapp-support-text {
+  font-family: var(--font-serif);
+  font-size: 0.88rem;
+  color: #4a280e;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 440px;
+  margin: 0.2rem 0;
+}
+
+.btn-whatsapp-group {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65em;
+  width: 100%;
+  max-width: 440px;
+  padding: 0.95rem 1.8rem;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  border: 1px solid #70e29d;
+  border-radius: 6px;
+  clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+  box-shadow: 
+    0 5px 18px rgba(18, 140, 126, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-whatsapp-group:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, #2bf075 0%, #15a392 100%);
+  box-shadow: 
+    0 8px 25px rgba(37, 211, 102, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 680px) {
+  .reg-row,
+  .reg-row-triplet,
+  .roster-grid {
+    grid-template-columns: 1fr;
+  }
+}

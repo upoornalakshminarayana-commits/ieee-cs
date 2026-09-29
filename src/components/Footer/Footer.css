@@ -1,0 +1,236 @@
+/* ============================================================
+   KHEPRIX 2K26 — Footer Styles
+   Ancient Egyptian Scribe Signoff
+   ============================================================ */
+
+.site-footer {
+  position: relative;
+  background: rgba(10, 6, 3, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(243, 190, 58, 0.4);
+  overflow: hidden;
+  padding: 0 1.5rem 2.5rem;
+}
+
+/* Hieroglyph Band */
+.footer-hieroglyph-band {
+  width: 100%;
+  overflow: hidden;
+  padding: 0.8rem 0;
+  border-bottom: 1px dashed rgba(243, 190, 58, 0.25);
+  background: rgba(18, 11, 6, 0.5);
+  white-space: nowrap;
+}
+
+.footer-hieroglyph-text {
+  display: inline-block;
+  font-size: 1.2rem;
+  color: var(--color-gold);
+  opacity: 0.5;
+  letter-spacing: 0.8em;
+  animation: marqueeHieroglyph 40s linear infinite;
+}
+
+@keyframes marqueeHieroglyph {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.footer-grid {
+  max-width: 1200px;
+  margin: 3rem auto 2rem;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 3rem;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.footer-brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-brand-glyph {
+  font-size: 1.5rem;
+  color: var(--color-gold);
+}
+
+.footer-logo {
+  font-family: var(--font-pharaoh);
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  background: linear-gradient(135deg, #fff280 0%, #f3be3a 60%, #c68a12 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.footer-logo-sub {
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--color-gold);
+}
+
+.footer-tagline-final {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: #ecd9b7;
+  line-height: 1.6;
+}
+
+.footer-highlight {
+  color: var(--color-gold-light);
+  font-weight: 600;
+}
+
+/* Spot 10: Social Links as Antique Bronze Wax Cartouche Stamps */
+.footer-social {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.footer-social-link {
+  font-family: var(--font-heading);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  padding: 0.45rem 0.9rem;
+  background: radial-gradient(circle at 35% 35%, #4a2d16 0%, #201107 100%);
+  border: 1.5px solid #8e652f;
+  border-radius: 4px;
+  color: #ecd9b7;
+  transition: all 0.35s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.footer-social-link:hover {
+  border-color: #ffd977;
+  color: #ffffff;
+  background: radial-gradient(circle at 35% 35%, #7a5025 0%, #3a200d 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.95), 0 0 10px rgba(255, 217, 119, 0.35);
+}
+
+/* Columns */
+.footer-col-title {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  color: var(--color-gold-bright);
+  margin-bottom: 0.4rem;
+}
+
+.footer-divider-mini {
+  width: 40px;
+  height: 2px;
+  background: var(--color-gold);
+  margin-bottom: 1.2rem;
+}
+
+.footer-address {
+  font-style: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.footer-contact-icon {
+  color: var(--color-gold);
+  flex-shrink: 0;
+}
+
+.footer-link-text {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: #ecd9b7;
+  transition: color 0.3s ease;
+}
+
+.footer-link-text:hover {
+  color: var(--color-gold-bright);
+}
+
+.footer-links-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.footer-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #ecd9b7;
+  transition: all 0.3s ease;
+}
+
+.footer-nav-btn:hover {
+  color: var(--color-gold-bright);
+  transform: translateX(4px);
+}
+
+/* Bottom Bar */
+.footer-bottom {
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(243, 190, 58, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+}
+
+.footer-closing-line {
+  font-family: var(--font-serif);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--color-gold);
+  letter-spacing: 0.08em;
+}
+
+.footer-scarab {
+  font-size: 1.5rem;
+  color: var(--color-gold);
+  animation: pulseEmblem 3s infinite ease-in-out;
+}
+
+.footer-copyright {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: #b09b78;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

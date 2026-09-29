@@ -1,0 +1,112 @@
+/* Rusted Bronze Ankh Audio Ambience Toggle */
+
+.ancient-ankh-audio-control {
+  position: fixed;
+  left: max(1.5rem, env(safe-area-inset-left));
+  bottom: max(1.5rem, env(safe-area-inset-bottom));
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ankh-toggle-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #7a5025 0%, #301a0a 65%, #150a04 100%);
+  border: 1.5px solid #bd9249;
+  box-shadow: 
+    0 4px 15px rgba(0, 0, 0, 0.9),
+    inset 0 2px 4px rgba(255, 225, 140, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.ankh-toggle-btn:hover {
+  transform: scale(1.1);
+  border-color: #ffd977;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.95), 0 0 12px rgba(255, 217, 119, 0.4);
+}
+
+.ankh-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.ankh-toggle-btn:focus-visible {
+  outline: 2px solid #ffd977;
+  outline-offset: 3px;
+}
+
+.ankh-toggle-btn.active {
+  background: radial-gradient(circle at 35% 35%, #9e6d30 0%, #46260e 70%, #1c0d05 100%);
+  border-color: #ffd977;
+  box-shadow: 0 0 16px rgba(255, 217, 119, 0.6);
+}
+
+/* Verdigris oxidized rust */
+.ankh-bronze-crust {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 75% 25%, rgba(35, 110, 90, 0.4) 0%, transparent 55%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.ankh-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 5;
+}
+
+.ankh-glyph {
+  font-size: 1.15rem;
+  color: #ffe699;
+  text-shadow: 0 0 4px rgba(255, 220, 100, 0.7);
+  margin-right: 2px;
+}
+
+.audio-status-icon {
+  color: #ffe699;
+  opacity: 0.8;
+  display: flex;
+}
+
+/* Expanding Hieroglyphic Acoustic Ring */
+.ankh-acoustic-ripple {
+  position: absolute;
+  inset: -12px;
+  border: 1.5px solid rgba(255, 217, 119, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  animation: rippleExpand 0.9s ease-out forwards;
+  pointer-events: none;
+}
+
+.ripple-glyph {
+  font-size: 0.75rem;
+  color: #ffe699;
+  opacity: 0.8;
+}
+
+@keyframes rippleExpand {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}

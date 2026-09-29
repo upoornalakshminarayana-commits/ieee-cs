@@ -1,0 +1,389 @@
+/* ============================================================
+   KHEPRIX 2K26 — Register Section Styles
+   Left: Full-Card Video with Overlay Dare Plaque | Right: Information Stele
+   Antique Rusted Egyptian Theme with Division Switcher & Plaque Feedback
+   ============================================================ */
+
+.final-register-section {
+  position: relative;
+  background: transparent;
+  padding: clamp(4rem, 8vh, 7rem) 1.5rem clamp(5rem, 10vh, 8rem);
+  overflow: hidden;
+}
+
+.final-register-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 1.25fr;
+  gap: 2.5rem;
+  align-items: stretch;
+}
+
+/* ── Left Column: Video Covering the Entire Card ── */
+.final-register-left {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(1.4rem, 2.5vh, 2rem) clamp(1.2rem, 2vw, 1.8rem);
+  background: #060402;
+  border: 1px solid #5a3818;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.95);
+}
+
+.final-mummy-full-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  filter: contrast(1.08) brightness(0.92);
+}
+
+.final-mummy-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, 
+    rgba(0, 0, 0, 0.1) 0%, 
+    rgba(0, 0, 0, 0.3) 40%, 
+    rgba(10, 6, 3, 0.88) 100%
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Dare Signboard - Layered nicely at the bottom (Transition 5) */
+.dare-signboard {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.2rem 1.4rem;
+  background: rgba(26, 15, 8, 0.92);
+  border: 2px solid #9c733a;
+  border-radius: 8px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.9), 
+    inset 0 0 15px rgba(243, 190, 58, 0.12);
+  cursor: pointer;
+  transition: all 0.35s ease;
+  overflow: hidden;
+}
+
+.dare-signboard:hover {
+  transform: translateY(-2px);
+  border-color: #ffd977;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.98), 0 0 20px rgba(180, 50, 30, 0.35);
+}
+
+/* Corroded rust crust on signboard */
+.signboard-rust-corrosion {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(140, 50, 15, 0.4) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(35, 90, 75, 0.35) 0%, transparent 45%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Supernatural Blood-Rust Flicker Animation */
+.dare-signboard.plaque-blood-flicker {
+  animation: bloodRustPulse 0.8s ease forwards;
+}
+
+@keyframes bloodRustPulse {
+  0% {
+    background: rgba(55, 12, 12, 0.98);
+    border-color: #ff4444;
+    box-shadow: 0 0 30px rgba(255, 50, 50, 0.6);
+    transform: scale(1.02);
+  }
+  30% {
+    background: rgba(26, 15, 8, 0.92);
+    border-color: #9c733a;
+  }
+  55% {
+    background: rgba(65, 15, 15, 0.98);
+    border-color: #ff6666;
+    box-shadow: 0 0 25px rgba(255, 60, 60, 0.5);
+  }
+  100% {
+    background: rgba(26, 15, 8, 0.92);
+    border-color: #ffd977;
+    transform: scale(1);
+  }
+}
+
+.dare-warning-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.9rem;
+  background: rgba(136, 19, 19, 0.92);
+  border: 1px solid rgba(255, 100, 100, 0.6);
+  border-radius: 20px;
+  color: #ffc4c4;
+  font-family: var(--font-heading);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  width: fit-content;
+  box-shadow: 0 0 12px rgba(136, 19, 19, 0.5);
+}
+
+.dare-main-title {
+  font-family: var(--font-pharaoh);
+  font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  line-height: 1;
+}
+
+.dare-text {
+  font-family: var(--font-serif);
+  font-size: 0.92rem;
+  color: #fff2db;
+  line-height: 1.45;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.dare-sigil-band {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.2rem;
+  color: var(--color-gold);
+  text-shadow: 0 0 10px rgba(243, 190, 58, 0.6);
+  padding-top: 0.4rem;
+  border-top: 1px dashed rgba(243, 190, 58, 0.25);
+}
+
+/* ── Right Column: Information Stele ── */
+.final-register-right {
+  padding: 2.2rem 2rem;
+  background: rgba(20, 12, 7, 0.9);
+  border: 1px solid #5a3818;
+  border-radius: 8px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.final-right-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.final-glyph {
+  color: var(--color-gold);
+  font-size: 1rem;
+}
+
+.final-eyebrow {
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  letter-spacing: 0.35em;
+  color: var(--color-gold);
+  font-weight: 700;
+}
+
+.final-right-title {
+  font-family: var(--font-pharaoh);
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--color-gold-bright);
+}
+
+.stele-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(243, 190, 58, 0.5), transparent);
+  margin: 0.8rem 0 1.2rem;
+}
+
+/* ── Transition 4: Interactive Expedition Division Switcher ── */
+.expedition-division-switcher {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background: rgba(14, 8, 4, 0.85);
+  padding: 0.35rem;
+  border-radius: 6px;
+  border: 1px solid #7a5025;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9);
+  margin-bottom: 1.2rem;
+}
+
+.switcher-rusted-base {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 50%, rgba(140, 55, 15, 0.35) 0%, transparent 60%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.division-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #c9b18c;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.division-tab:hover {
+  color: #ffffff;
+  background: rgba(45, 25, 12, 0.6);
+}
+
+.division-tab.active {
+  background: radial-gradient(circle at 35% 35%, #855b2d 0%, #462a12 65%, #241306 100%);
+  border: 1px solid #ffd977;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 217, 119, 0.4);
+}
+
+/* Division Papyrus Unfurl Animation */
+.division-papyrus-unfurl {
+  animation: papyrusUnroll 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes papyrusUnroll {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.expedition-steps-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin: 0.5rem 0 1.2rem;
+}
+
+.expedition-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.step-num-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(35, 22, 10, 0.85);
+  border: 1px solid var(--color-gold);
+  color: var(--color-gold-bright);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(243, 190, 58, 0.2);
+}
+
+.step-heading {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #fff;
+  margin-bottom: 0.15rem;
+}
+
+.step-body {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: #ecd9b7;
+  line-height: 1.45;
+}
+
+/* Action Buttons */
+.final-cta-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.8rem;
+}
+
+.final-main-btn {
+  flex: 1;
+  min-width: 240px;
+  font-size: 0.9rem;
+  padding: 1.1em 2em;
+}
+
+.final-sub-btn {
+  font-size: 0.82rem;
+}
+
+.final-guarantee {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: #d6c4a5;
+}
+
+.guarantee-icon {
+  color: var(--color-gold);
+  flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+  .final-register-container {
+    grid-template-columns: 1fr;
+  }
+  .final-register-left {
+    min-height: 480px;
+  }
+  .final-register-right {
+    padding: 1.5rem 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .final-register-left {
+    min-height: 520px;
+  }
+}
+

@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Registrations collection
+    match /registrations/{registrationId} {
+      // Only allow creates with required fields and valid data
+      allow create: if request.resource.data.keys().hasAll([
+        'registrationId', 'eventId', 'eventName', 'eventDate', 'eventTime', 'venue',
+        'teamName', 'teamSize', 'totalAmount', 'amountPerParticipant',
+        'members', 'payment', 'status', 'paymentStatus', 'createdAt', 'updatedAt'
+      ]) &&
+      request.resource.data.teamName is string &&
+      request.resource.data.teamSize == 4 &&
+      request.resource.data.payment.screenshotUrl is string &&
+      request.resource.data.payment.status == 'pending';
+
+      // Disallow reads from client side
+      allow read: if false;
+    }
+  }
+}

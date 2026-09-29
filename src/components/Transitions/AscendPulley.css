@@ -1,0 +1,118 @@
+/* Rusted Iron Pulley Ascension Widget (Back to Top) */
+
+.ascend-pulley-widget {
+  position: fixed;
+  right: 1.8rem;
+  bottom: max(1.8rem, env(safe-area-inset-bottom));
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: all;
+  animation: pulleyFadeIn 0.4s ease forwards;
+}
+
+@keyframes pulleyFadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Rusted Vertical Chain */
+.pulley-chain-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: -4px;
+}
+
+.p-chain-link {
+  width: 10px;
+  height: 14px;
+  border: 2px solid #6b431e;
+  border-radius: 6px;
+  margin-top: -4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.ascend-pulley-widget.pulling .p-chain-link {
+  animation: chainRattle 0.2s infinite ease-in-out;
+}
+
+@keyframes chainRattle {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+/* Rusted Bronze Pulley Button */
+.ascend-pulley-btn {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #7e5327 0%, #301a0a 65%, #140903 100%);
+  border: 2px solid #b88a44;
+  box-shadow: 
+    0 6px 18px rgba(0, 0, 0, 0.95),
+    inset 0 2px 4px rgba(255, 225, 140, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.ascend-pulley-btn:hover {
+  transform: scale(1.1) translateY(-3px);
+  border-color: #ffd977;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.98), 0 0 14px rgba(255, 217, 119, 0.5);
+}
+
+.ascend-pulley-btn:active {
+  transform: scale(0.95);
+}
+
+.ascend-pulley-btn:focus-visible {
+  outline: 2px solid #ffd977;
+  outline-offset: 3px;
+}
+
+/* Rust crust */
+.pulley-rust-crust {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 75% 25%, rgba(160, 60, 20, 0.45) 0%, transparent 55%),
+              radial-gradient(circle at 25% 80%, rgba(35, 110, 90, 0.4) 0%, transparent 50%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.pulley-wheel-rim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 5;
+}
+
+.pulley-arrow {
+  color: #ffe699;
+  filter: drop-shadow(0 0 4px rgba(255, 220, 100, 0.8));
+  transition: transform 0.3s ease;
+}
+
+.ascend-pulley-btn:hover .pulley-arrow {
+  transform: translateY(-2px);
+}
+
+.pulley-subtext {
+  font-family: var(--font-heading, 'Cinzel', serif);
+  font-size: 0.45rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  color: #ffe699;
+  margin-top: 1px;
+}

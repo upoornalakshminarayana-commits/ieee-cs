@@ -1,0 +1,69 @@
+/* ============================================================
+   KHEPRIX 2K26 — Story Section Styles
+   Expansive Clean Video Presentation — Covers Maximum Page
+   ============================================================ */
+
+.story-section {
+  position: relative;
+  width: 100%;
+  min-height: 100svh;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-video-fullscreen-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.story-fullscreen-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Spot 4: Ancient Rusted Bronze Corner Steles & Edge Framing */
+.story-video-fullscreen-wrapper::before,
+.story-video-fullscreen-wrapper::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3d220e, #d4a84b 50%, #3d220e);
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+}
+
+.story-video-fullscreen-wrapper::before { top: 0; }
+.story-video-fullscreen-wrapper::after { bottom: 0; }
+
+@media (max-width: 768px) {
+  .story-section {
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  .story-video-fullscreen-wrapper {
+    height: 100dvh;
+    min-height: 100dvh;
+  }
+
+  .story-fullscreen-video {
+    object-fit: cover;
+  }
+}
+

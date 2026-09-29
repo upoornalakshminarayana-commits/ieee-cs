@@ -1,0 +1,159 @@
+/* Rusted Iron Tomb Portcullis Gates (Story ➔ Treasure Transition) */
+
+.rusted-tomb-gates-portal {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -45px;
+  margin-bottom: -45px;
+  z-index: 26;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.tomb-iron-gate {
+  position: relative;
+  width: 50%;
+  height: 80px;
+  background: linear-gradient(
+    180deg,
+    #1d1209 0%,
+    #3b2210 20%,
+    #2c1a0c 50%,
+    #4a2c15 80%,
+    #150c05 100%
+  );
+  border-top: 3px solid #5a3818;
+  border-bottom: 3px solid #140b04;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.95),
+    inset 0 2px 6px rgba(180, 120, 60, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  will-change: transform, opacity;
+}
+
+.left-gate {
+  border-right: 4px solid #6e4620;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.right-gate {
+  border-left: 4px solid #6e4620;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.gate-iron-bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 0 10%;
+}
+
+.iron-bar {
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #180e06 0%,
+    #4a2e16 35%,
+    #82562b 55%,
+    #38200e 80%,
+    #120904 100%
+  );
+  box-shadow: 
+    2px 0 4px rgba(0, 0, 0, 0.8),
+    inset 1px 0 1px rgba(240, 190, 120, 0.25);
+  border-radius: 2px;
+}
+
+.gate-cross-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(
+    180deg,
+    #5a3a1b 0%,
+    #2b180a 50%,
+    #120803 100%
+  );
+  border-top: 1px solid #7c5025;
+  border-bottom: 1px solid #1a0e05;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.85);
+}
+
+.top-beam { top: 12px; }
+.bottom-beam { bottom: 12px; }
+
+/* Rust & Verdigris Corrosion Patina */
+.gate-rust-patina {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 15% 30%, rgba(140, 50, 15, 0.5) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(35, 90, 75, 0.4) 0%, transparent 45%),
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0px,
+      transparent 20px,
+      rgba(25, 12, 4, 0.35) 20px,
+      rgba(25, 12, 4, 0.35) 23px
+    );
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Rusted Chains in Center */
+.tomb-rusted-chains {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  will-change: transform, opacity;
+}
+
+.chain-link {
+  width: 14px;
+  height: 20px;
+  border: 3px solid #6b431e;
+  border-radius: 8px;
+  background: transparent;
+  margin-top: -6px;
+  box-shadow: 
+    0 2px 5px rgba(0, 0, 0, 0.9),
+    inset 0 1px 2px rgba(200, 140, 70, 0.3);
+}
+
+.rusted-padlock {
+  width: 32px;
+  height: 36px;
+  margin-top: 4px;
+  background: radial-gradient(circle at 35% 30%, #855b2d 0%, #462a12 60%, #1c0e05 100%);
+  border: 2px solid #b38541;
+  border-radius: 6px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.95),
+    0 0 8px rgba(179, 133, 65, 0.35),
+    inset 0 2px 4px rgba(255, 220, 140, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-glyph {
+  font-size: 1rem;
+  color: #ffe699;
+  text-shadow: 0 0 4px rgba(255, 220, 100, 0.8);
+}

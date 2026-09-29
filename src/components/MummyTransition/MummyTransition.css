@@ -1,0 +1,349 @@
+/* ============================================================
+   KHEPRIX 2K26 — Cinematic Mummy Bandage Transition Styles
+   Supernatural Swarm, Organic Center Tear & Secret Tomb Reveal
+   Authentic Ancient Egyptian Dusted Linen Thread Bands
+   ============================================================ */
+
+.mummy-cinematic-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mummy-cinematic-overlay.active {
+  pointer-events: all;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ── Deep Void Abyss Backdrop ── */
+.mummy-dark-abyss {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(18, 11, 6, 0.96) 0%, rgba(5, 3, 1, 0.99) 100%);
+  z-index: 1;
+}
+
+/* ── Active Desert Sand Dust & Lint Canvas ── */
+.mummy-dust-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 28;
+  pointer-events: none;
+}
+
+/* ── Container for Bandage Strands ── */
+.mummy-shroud-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* ── Individual Supernatural Mummy Bandage Strip ── */
+.mummy-bandage-strip {
+  position: absolute;
+  transform-origin: center center;
+  will-change: transform, opacity;
+  pointer-events: none;
+  filter: 
+    drop-shadow(0 14px 28px rgba(0, 0, 0, 0.92)) 
+    drop-shadow(0 5px 12px rgba(45, 25, 10, 0.75))
+    url(#mummy-ragged-edge);
+}
+
+/* Aged Dusted Mummy Cloth Band Surface */
+.bandage-cloth-surface {
+  position: absolute;
+  inset: 0;
+  background: 
+    /* Natron chalk dust powder highlights */
+    radial-gradient(ellipse at 25% 30%, rgba(240, 226, 198, 0.45) 0%, transparent 45%),
+    /* Dark embalming bitumen oil blotch */
+    radial-gradient(ellipse at 70% 65%, rgba(42, 24, 11, 0.75) 0%, transparent 55%),
+    /* Desert sand dust clusters */
+    radial-gradient(ellipse at 50% 50%, rgba(190, 155, 100, 0.4) 0%, transparent 60%),
+    /* Multi-stop oxidized linen base colors */
+    linear-gradient(180deg, 
+      #71532c 0%, 
+      #9a7a49 8%, 
+      #c4a675 22%, 
+      #ded0af 40%, 
+      #af9160 58%, 
+      #bfa474 74%, 
+      #846437 90%, 
+      #563c1b 100%
+    );
+  box-shadow: 
+    inset 0 6px 12px rgba(35, 20, 8, 0.75),
+    inset 0 -6px 12px rgba(25, 14, 5, 0.85);
+  border-radius: 2px;
+  overflow: visible;
+}
+
+/* 1. Thick Desert Sand Dust & Gritty Granular Powder Layer */
+.bandage-sand-dust-layer {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    /* Micro sand specks (scattered fine grains) */
+    radial-gradient(1px 1px at 15% 20%, #f4e8cb 100%, transparent),
+    radial-gradient(1.5px 1.5px at 35% 45%, #e1cda6 100%, transparent),
+    radial-gradient(1px 1px at 60% 15%, #d9bc8c 100%, transparent),
+    radial-gradient(2px 2px at 80% 70%, #edd8b4 100%, transparent),
+    radial-gradient(1px 1px at 90% 30%, #f7ecd2 100%, transparent),
+    radial-gradient(1.5px 1.5px at 45% 85%, #d4b584 100%, transparent),
+    radial-gradient(1px 1px at 25% 65%, #ebd7b2 100%, transparent),
+    radial-gradient(2px 2px at 70% 35%, #f2e3c6 100%, transparent),
+    radial-gradient(1px 1px at 5% 80%, #dfc499 100%, transparent),
+    radial-gradient(1.5px 1.5px at 95% 60%, #eedebd 100%, transparent);
+  background-size: 80px 60px;
+  opacity: 0.85;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* 2. Coarse Linen Thread Weave (Warp & Weft Weaving Grids) */
+.bandage-woven-threads {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    /* Longitudinal warp threads (horizontal threads) */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(45, 28, 12, 0.35) 2px,
+      rgba(45, 28, 12, 0.35) 3.5px,
+      transparent 3.5px,
+      transparent 5.5px,
+      rgba(245, 230, 195, 0.22) 5.5px,
+      rgba(245, 230, 195, 0.22) 7px
+    ),
+    /* Vertical weft threads (cross woven fibers) */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(40, 24, 10, 0.3) 2px,
+      rgba(40, 24, 10, 0.3) 3.5px,
+      transparent 3.5px,
+      transparent 5.5px,
+      rgba(235, 220, 185, 0.18) 5.5px,
+      rgba(235, 220, 185, 0.18) 7px
+    );
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* 3. Hand-Spun Coarse Thread Slubs & Uneven Cords */
+.bandage-coarse-slubs {
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      -12deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(235, 218, 180, 0.2) 18px,
+      rgba(235, 218, 180, 0.2) 21px,
+      transparent 21px,
+      transparent 38px,
+      rgba(50, 30, 12, 0.25) 38px,
+      rgba(50, 30, 12, 0.25) 42px
+    );
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/* 4. Bitumen & Cedar Resin Embalming Stains */
+.bandage-dirt-stains {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 18% 40%, rgba(35, 18, 8, 0.65) 0%, transparent 35%),
+    radial-gradient(circle at 62% 75%, rgba(55, 30, 12, 0.55) 0%, transparent 40%),
+    radial-gradient(circle at 82% 25%, rgba(30, 15, 6, 0.6) 0%, transparent 30%),
+    radial-gradient(circle at 40% 60%, rgba(70, 42, 18, 0.4) 0%, transparent 50%);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* 5. Tension Creases & Aged Cloth Wrinkles */
+.bandage-crease-folds {
+  position: absolute;
+  inset: 0;
+  background: 
+    repeating-linear-gradient(
+      -35deg,
+      transparent 0px,
+      transparent 32px,
+      rgba(30, 15, 6, 0.4) 33px,
+      rgba(245, 230, 195, 0.3) 35px,
+      transparent 37px
+    );
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* 6. Decayed Threadbare Patches & Moth-Eaten Holes */
+.bandage-decay-holes {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at 35% 55%, rgba(15, 8, 3, 0.7) 0%, transparent 12%),
+    radial-gradient(ellipse at 78% 30%, rgba(12, 6, 2, 0.65) 0%, transparent 10%);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* ── Hanging Frayed Thread String Projections ── */
+.bandage-fray-fringe {
+  position: absolute;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 8;
+  overflow: visible;
+}
+
+.top-fringe {
+  top: -12px;
+  height: 16px;
+}
+
+.bottom-fringe {
+  bottom: -12px;
+  height: 16px;
+}
+
+/* Individual Hanging Frayed Thread Strand */
+.hanging-frayed-thread {
+  position: absolute;
+  display: block;
+  background: linear-gradient(
+    180deg, 
+    #ded0af 0%, 
+    #bfa474 40%, 
+    #8f6e3e 75%, 
+    #4a3014 100%
+  );
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.85);
+  transform-origin: top center;
+  border-radius: 1px;
+}
+
+.top-fringe .hanging-frayed-thread {
+  bottom: 0;
+  transform-origin: bottom center;
+}
+
+.bottom-fringe .hanging-frayed-thread {
+  top: 0;
+  transform-origin: top center;
+}
+
+/* Micro Sand Dust Grain on Frayed Thread Tip */
+.thread-dust-tip {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2.5px;
+  height: 2.5px;
+  background: #f5eccf;
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(245, 236, 207, 0.8);
+  opacity: 0.9;
+}
+
+.top-fringe .thread-dust-tip {
+  top: -2px;
+  bottom: auto;
+}
+
+/* ── Secret Tomb Registration Chamber Panel ── */
+.mummy-revealed-chamber {
+  position: relative;
+  z-index: 30;
+  width: 100%;
+  max-width: 780px;
+  margin: auto;
+  padding: 1rem;
+  max-height: 94vh;
+  max-height: 94dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Close Button (Egyptian Tomb Seal) */
+.tomb-chamber-close-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  background: rgba(22, 13, 7, 0.92);
+  border: 1px solid rgba(243, 190, 58, 0.6);
+  border-radius: 20px;
+  color: var(--color-gold-bright, #f7d070);
+  font-family: var(--font-heading, 'Cinzel', serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  backdrop-filter: blur(8px);
+  z-index: 40;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8), 0 0 10px rgba(243, 190, 58, 0.25);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.tomb-chamber-close-btn:hover {
+  background: rgba(45, 25, 12, 0.98);
+  border-color: var(--color-gold-bright, #f7d070);
+  color: #ffffff;
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(243, 190, 58, 0.5);
+}
+
+.close-glyph {
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+.close-text {
+  font-size: 0.62rem;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .mummy-revealed-chamber {
+    padding: 0.5rem;
+    max-height: 96svh;
+  }
+  
+  .tomb-chamber-close-btn {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.35rem 0.75rem;
+  }
+}
