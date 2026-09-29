@@ -110,7 +110,10 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
   const [statusFilter, setStatusFilter] = useState<string>('all') // all, active, blocked
   const [deptFilter, setDeptFilter] = useState<string>('all')
   const [yearFilter, setYearFilter] = useState<string>('all')
+  const [sourceFilter, setSourceFilter] = useState<string>('all') // all, PUBLIC, ADMIN
+  const [datePreset, setDatePreset] = useState<string>('all') // all, today, custom
   const [dateFilter, setDateFilter] = useState<string>('')
+  const [sortOrder, setSortOrder] = useState<'oldest' | 'newest'>('oldest') // oldest, newest
 
   // Modals
   const [selectedReg, setSelectedReg] = useState<AdminRegistration | null>(null)
@@ -144,6 +147,78 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
       emptyMember(4, 'Explorer 4'),
     ],
   })
+
+  // Direct download link helper for Google Drive files
+  const getDirectDriveDownloadUrl = (url: string): string => {
+    if (!url) return ''
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/)
+    if (match && match[1]) {
+      return `https://drive.google.com/uc?export=download&id=${match[1]}`
+    }
+    return url
+  }
+
+  // Complete team details dossier generator
+  const downloadTeamDetails = (reg: AdminRegistration) => {
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>KHEPRIX 2K26 - Team Dossier - ${reg.teamName} (${reg.registrationId})</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0c0602; color: #faeed4; padding: 28px; margin: 0; }
+    .dossier { max-width: 820px; margin: 0 auto; border: 2px solid #d49818; border-radius: 12px; padding: 28px; background: #160c04; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+    h1 { color: #ffd875; margin: 6px 0 10px; font-size: 26px; }
+    .badge { color: #d49818; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; }
+    .meta-box { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; background: rgba(0,0,0,0.45); padding: 16px; border-radius: 8px; margin: 18px 0; border: 1px solid rgba(212,152,24,0.3); font-size: 13px; }
+    .member-card { background: rgba(255,255,255,0.03); border-left: 3px solid #d49818; padding: 12px 16px; margin-bottom: 12px; border-radius: 4px; }
+    .role { color: #d49818; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    .name { font-size: 16px; font-weight: bold; margin: 4px 0 8px; color: #fff; }
+    .info { font-size: 12px; margin: 3px 0; color: #c9b49e; }
+    .info strong { color: #ffd875; }
+    .print-btn { background: linear-gradient(135deg, #fff6a8 0%, #f3be3a 50%, #946508 100%); color: #120902; border: none; padding: 12px 24px; font-weight: bold; cursor: pointer; border-radius: 6px; margin-top: 18px; font-size: 12px; letter-spacing: 1px; }
+    @media print { .print-btn { display: none; } body { background: #fff; color: #000; padding: 0; } .dossier { border: 1px solid #333; background: #fff; color: #000; box-shadow: none; } .member-card { border-left-color: #333; background: #f9f9f9; } .name, h1, .info strong { color: #000; } }
+  </style>
+</head>
+<body>
+  <div class="dossier">
+    <div class="badge">𓆣 KHEPRIX 2K26 • OFFICIAL EXPEDITION SQUAD DOSSIER 𓁹</div>
+    <h1>${reg.teamName}</h1>
+    <p>Registration ID: <code>${reg.registrationId}</code> • FCFS Position: <strong>${reg.fcfsDisplay}</strong> • Timestamp: ${reg.timestamp}</p>
+    <div class="meta-box">
+      <div><strong>Status:</strong> ${reg.status}</div>
+      <div><strong>Payment Status:</strong> ${reg.paymentStatus || 'Pending Verification'}</div>
+      <div><strong>Total Amount:</strong> ₹${reg.totalAmount} (₹300 × 4)</div>
+      <div><strong>Transaction ID:</strong> ${reg.transactionId || 'None Recorded'}</div>
+      <div><strong>Event / Venue:</strong> KHEPRIX 2K26 • 8 Block (Oct 2, 2026)</div>
+      <div><strong>Registration Source:</strong> ${reg.registrationSource || 'PUBLIC'}</div>
+    </div>
+    <h3 style="color: #ffd875; border-bottom: 1px solid rgba(212,152,24,0.3); padding-bottom: 6px; margin-top: 20px;">Confirmed Squad Roster (4 Explorers)</h3>
+    ${reg.members.map((m, idx) => `
+      <div class="member-card">
+        <div class="role">${idx === 0 ? 'Team Leader (Member 1)' : 'Explorer ' + (idx + 1)}</div>
+        <div class="name">${m.name || '—'}</div>
+        <div class="info"><strong>College Gmail:</strong> ${m.collegeGmail || '—'}</div>
+        <div class="info"><strong>Phone:</strong> ${m.phone || '—'} | <strong>Reg No:</strong> ${m.regNo || '—'}</div>
+        <div class="info"><strong>Year:</strong> ${m.year || '—'} | <strong>Department:</strong> ${m.department || '—'}</div>
+        <div class="info"><strong>Hostel:</strong> ${m.hostelName || '—'} (Room ${m.roomNo || '—'})</div>
+        <div class="info"><strong>Warden:</strong> ${m.wardenName || '—'} (${m.wardenPhone || '—'})</div>
+      </div>
+    `).join('')}
+    <button class="print-btn" onclick="window.print()">PRINT / SAVE AS PDF</button>
+  </div>
+</body>
+</html>`
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `KHEPRIX_2K26_Dossier_${reg.registrationId}.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 
   const showToast = useCallback((type: 'success' | 'error', message: string) => {
     setNotification({ type, message })
@@ -214,9 +289,10 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
   // Filtered registrations (client-side in-memory filter, no network calls on keystroke)
   const filteredRegistrations = useMemo(() => {
     const q = searchQuery.toLowerCase().trim()
+    const todayStr = new Date().toISOString().slice(0, 10)
 
-    return registrations.filter((reg) => {
-      // 1. Text Search: ID, Team Name, Member Names, Phones, Emails, Txn ID
+    const list = registrations.filter((reg) => {
+      // 1. Text Search: ID, Team Name, Member Names, Phones, Emails, Reg No, Txn ID
       if (q) {
         const matchesId = reg.registrationId.toLowerCase().includes(q)
         const matchesTeam = reg.teamName.toLowerCase().includes(q)
@@ -239,17 +315,14 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
         if (statusFilter === 'blocked' && reg.status !== 'BLOCKED') return false
       }
 
-      // 3. Payment Status Filter
+      // 3. Payment Status Filter (Verified vs Pending)
       if (paymentFilter !== 'all') {
         const statusLower = (reg.paymentStatus || '').toLowerCase()
-        if (paymentFilter === 'confirmed') {
-          if (!statusLower.includes('confirm') && !statusLower.includes('verified') && !statusLower.includes('success')) {
-            return false
-          }
+        const isVerified = statusLower.includes('confirm') || statusLower.includes('verified') || statusLower.includes('success')
+        if (paymentFilter === 'confirmed' || paymentFilter === 'verified') {
+          if (!isVerified) return false
         } else if (paymentFilter === 'pending') {
-          if (statusLower.includes('confirm') || statusLower.includes('verified') || statusLower.includes('success')) {
-            return false
-          }
+          if (isVerified) return false
         }
       }
 
@@ -265,15 +338,36 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
         if (!hasYear) return false
       }
 
-      // 6. Registration Date Filter
-      if (dateFilter) {
+      // 6. Registration Source Filter (PUBLIC vs ADMIN)
+      if (sourceFilter !== 'all') {
+        const src = (reg.registrationSource || 'PUBLIC').toUpperCase()
+        if (src !== sourceFilter.toUpperCase()) return false
+      }
+
+      // 7. Date Filter (All, Today, or Custom Date)
+      if (datePreset === 'today') {
+        const regDateStr = reg.timestamp ? reg.timestamp.slice(0, 10) : ''
+        if (!regDateStr.includes(todayStr)) return false
+      } else if (datePreset === 'custom' && dateFilter) {
+        const regDateStr = reg.timestamp ? reg.timestamp.slice(0, 10) : ''
+        if (!regDateStr.includes(dateFilter)) return false
+      } else if (dateFilter) {
         const regDateStr = reg.timestamp ? reg.timestamp.slice(0, 10) : ''
         if (!regDateStr.includes(dateFilter)) return false
       }
 
       return true
     })
-  }, [registrations, searchQuery, statusFilter, paymentFilter, deptFilter, yearFilter, dateFilter])
+
+    // 8. FCFS Sorting (Oldest first #1, #2... vs Newest first)
+    return list.sort((a, b) => {
+      const timeA = new Date(a.timestamp).getTime()
+      const timeB = new Date(b.timestamp).getTime()
+      if (isNaN(timeA)) return 1
+      if (isNaN(timeB)) return -1
+      return sortOrder === 'newest' ? timeB - timeA : timeA - timeB
+    })
+  }, [registrations, searchQuery, statusFilter, paymentFilter, deptFilter, yearFilter, sourceFilter, datePreset, dateFilter, sortOrder])
 
   // Copy helper
   const handleCopy = (text: string, id: string) => {
@@ -293,11 +387,22 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
     setPaymentFilter('all')
     setDeptFilter('all')
     setYearFilter('all')
+    setSourceFilter('all')
+    setDatePreset('all')
     setDateFilter('')
+    setSortOrder('oldest')
   }
 
   const hasActiveFilters = Boolean(
-    searchQuery || statusFilter !== 'all' || paymentFilter !== 'all' || deptFilter !== 'all' || yearFilter !== 'all' || dateFilter
+    searchQuery ||
+    statusFilter !== 'all' ||
+    paymentFilter !== 'all' ||
+    deptFilter !== 'all' ||
+    yearFilter !== 'all' ||
+    sourceFilter !== 'all' ||
+    datePreset !== 'all' ||
+    dateFilter ||
+    sortOrder !== 'oldest'
   )
 
   // ── Actions ──
@@ -556,6 +661,14 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
             <span>{refreshing ? 'Refreshing...' : 'Refresh Sheet'}</span>
           </button>
 
+          {/* Last Synced Indicator */}
+          {lastFetched && (
+            <span className="last-sync-badge" title="Timestamp of last Google Sheet sync">
+              <Clock size={12} />
+              <span>Last synced: {lastFetched.toLocaleTimeString('en-IN', { hour12: false })}</span>
+            </span>
+          )}
+
           {/* Exit to Site */}
           {onBackToSite && (
             <button type="button" className="btn-admin-action btn-exit" onClick={onBackToSite} title="Return to Public Website">
@@ -737,12 +850,27 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
               </select>
             </div>
 
+            {/* Registration Source Dropdown */}
+            <div className="filter-select-wrapper">
+              <select
+                className="admin-select"
+                value={sourceFilter}
+                onChange={(e) => setSourceFilter(e.target.value)}
+                title="Filter by registration source"
+              >
+                <option value="all">All Sources (Public &amp; Admin)</option>
+                <option value="PUBLIC">Public Website Only</option>
+                <option value="ADMIN">Admin Overseer Only</option>
+              </select>
+            </div>
+
             {/* Department Dropdown */}
             <div className="filter-select-wrapper">
               <select
                 className="admin-select"
                 value={deptFilter}
                 onChange={(e) => setDeptFilter(e.target.value)}
+                title="Filter by department"
               >
                 <option value="all">All Departments</option>
                 {departments.map((dept) => (
@@ -757,6 +885,7 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
                 className="admin-select"
                 value={yearFilter}
                 onChange={(e) => setYearFilter(e.target.value)}
+                title="Filter by year of study"
               >
                 <option value="all">All Years</option>
                 {years.map((yr) => (
@@ -765,22 +894,57 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
               </select>
             </div>
 
-            {/* Date Input */}
-            <div className="filter-date-wrapper">
-              <input
-                type="date"
-                className="admin-date-input"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                title="Filter by registration date"
-              />
+            {/* Date Preset Filter */}
+            <div className="filter-select-wrapper">
+              <select
+                className="admin-select"
+                value={datePreset}
+                onChange={(e) => {
+                  setDatePreset(e.target.value)
+                  if (e.target.value !== 'custom') setDateFilter('')
+                }}
+                title="Filter by registration timeframe"
+              >
+                <option value="all">All Dates</option>
+                <option value="today">Registered Today</option>
+                <option value="custom">Specific Date...</option>
+              </select>
+            </div>
+
+            {/* Specific Date Input (if custom or date set) */}
+            {(datePreset === 'custom' || dateFilter) && (
+              <div className="filter-date-wrapper">
+                <input
+                  type="date"
+                  className="admin-date-input"
+                  value={dateFilter}
+                  onChange={(e) => {
+                    setDateFilter(e.target.value)
+                    setDatePreset('custom')
+                  }}
+                  title="Choose specific date"
+                />
+              </div>
+            )}
+
+            {/* FCFS Chronological Sort */}
+            <div className="filter-select-wrapper">
+              <select
+                className="admin-select"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as 'oldest' | 'newest')}
+                title="Sort order for FCFS queue"
+              >
+                <option value="oldest">FCFS: Oldest First (#1, #2...)</option>
+                <option value="newest">FCFS: Newest First</option>
+              </select>
             </div>
 
             {/* Clear All Filters Button */}
             {hasActiveFilters && (
-              <button type="button" className="btn-clear-filters" onClick={handleClearFilters}>
+              <button type="button" className="btn-clear-filters" onClick={handleClearFilters} title="Reset all filters">
                 <X size={13} />
-                <span>Reset</span>
+                <span>Reset Filters</span>
               </button>
             )}
           </div>
@@ -1123,7 +1287,7 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
                   <span className="meta-val monospace-val">{selectedReg.transactionId || 'None Recorded'}</span>
                 </div>
                 <div className="payment-stat-item">
-                  <span className="meta-lbl">Payment Screenshot</span>
+                  <span className="meta-lbl">Payment Screenshot Proof</span>
                   {selectedReg.paymentScreenshotUrl ? (
                     <div className="screenshot-btn-cluster">
                       <a
@@ -1131,13 +1295,24 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-view-proof"
+                        title="View original payment screenshot on Google Drive"
                       >
                         <ExternalLink size={13} />
-                        <span>Open Drive</span>
+                        <span>VIEW PAYMENT PROOF</span>
+                      </a>
+                      <a
+                        href={getDirectDriveDownloadUrl(selectedReg.paymentScreenshotUrl)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-download-proof"
+                        title="Download payment screenshot directly"
+                      >
+                        <FileDown size={13} />
+                        <span>DOWNLOAD PAYMENT PROOF</span>
                       </a>
                     </div>
                   ) : (
-                    <span className="no-proof-label">Not Uploaded</span>
+                    <span className="no-proof-label">Payment proof unavailable</span>
                   )}
                 </div>
               </div>
@@ -1245,9 +1420,20 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
                   type="button"
                   className="btn-admin-action btn-pdf-action"
                   onClick={() => generateConfirmationDocument(selectedReg)}
+                  title="Download official KHEPRIX 2K26 confirmation voucher"
                 >
                   <FileDown size={14} />
-                  <span>Download Confirmation PDF</span>
+                  <span>Download Confirmation</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-admin-action btn-dossier-action"
+                  onClick={() => downloadTeamDetails(selectedReg)}
+                  title="Download complete printable squad details dossier"
+                >
+                  <FileDown size={14} />
+                  <span>Download Team Details</span>
                 </button>
 
                 <button

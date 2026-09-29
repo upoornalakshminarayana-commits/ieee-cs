@@ -785,7 +785,7 @@ export default function MummyTransition({ active, onClose }: MummyTransitionProp
         </button>
 
         {/* The Registration Scroll Form */}
-        <Registration />
+        <Registration isOpen={active} />
       </div>
     </div>
   )

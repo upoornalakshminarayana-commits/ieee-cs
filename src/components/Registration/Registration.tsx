@@ -37,7 +37,11 @@ const emptyMember = (): MemberData => ({
   wardenPhone: '',
 })
 
-export default function Registration() {
+interface RegistrationProps {
+  isOpen?: boolean
+}
+
+export default function Registration({ isOpen = true }: RegistrationProps) {
   const id = useId()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -57,11 +61,32 @@ export default function Registration() {
   const [registrationId, setRegistrationId] = useState<string>('')
   const [regSettings, setRegSettings] = useState<RegistrationSettings | null>(null)
 
-  useEffect(() => {
-    fetchRegistrationSettings()
-      .then((s) => setRegSettings(s))
-      .catch((err) => console.warn('Could not load live registration settings:', err))
+  const loadAvailability = useCallback(async () => {
+    try {
+      const s = await fetchRegistrationSettings()
+      setRegSettings(s)
+    } catch (err) {
+      console.warn('Could not load live registration settings:', err)
+    }
   }, [])
+
+  useEffect(() => {
+    loadAvailability()
+  }, [loadAvailability])
+
+  useEffect(() => {
+    if (isOpen) {
+      loadAvailability()
+      const interval = setInterval(loadAvailability, 15000)
+      return () => clearInterval(interval)
+    }
+  }, [isOpen, loadAvailability])
+
+  useEffect(() => {
+    const onFocus = () => loadAvailability()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [loadAvailability])
 
   const copyToClipboard = useCallback((text: string, field: string) => {
     navigator.clipboard.writeText(text).catch(() => {})
@@ -214,6 +239,11 @@ export default function Registration() {
       return
     }
 
+    if (regSettings && !regSettings.allowed) {
+      alert(`Registration unavailable: ${regSettings.reason || 'Registrations are currently closed.'}`)
+      return
+    }
+
     setSub(true)
     try {
       const requestBody = {
@@ -223,7 +253,7 @@ export default function Registration() {
         paymentScreenshotUrl: form.paymentScreenshot,
       }
 
-      console.log('Submitting registration payload:', {
+      console.log('Submitting registration payload to Google Apps Script:', {
         teamName: requestBody.teamName,
         membersCount: requestBody.members.length,
         paymentScreenshotName: requestBody.paymentScreenshotName,
@@ -240,25 +270,48 @@ export default function Registration() {
       })
 
       const responseText = await response.text()
-      console.log('Server raw response text:', responseText)
+      console.log('Google Apps Script server raw response text:', responseText)
 
-      let data: { success?: boolean; registrationId?: string; error?: string } = {}
+      if (!responseText || !responseText.trim()) {
+        throw new Error('Empty response received from registration server. Please check your connection and retry.')
+      }
+
+      let data: any = {}
       try {
         data = JSON.parse(responseText)
       } catch {
-        throw new Error(`Invalid server response format: ${responseText.slice(0, 200)}`)
+        console.error('Non-JSON response from server:', responseText)
+        throw new Error(`Server returned non-JSON format (${response.status}): ${responseText.slice(0, 150)}`)
       }
 
-      if (!response.ok || data.success === false) {
-        throw new Error(data.error || `Server returned error status (${response.status})`)
+      if (data.success === false || data.error) {
+        throw new Error(data.error || 'Server rejected registration request.')
       }
 
-      if (!data.registrationId) {
-        throw new Error('Registration ID was not returned by the server.')
+      if (!response.ok) {
+        throw new Error(`Server returned error status (${response.status})`)
       }
 
-      setRegistrationId(data.registrationId)
+      const receivedId = 
+        data.registrationId ||
+        data.regId ||
+        data.id ||
+        data.registration_id ||
+        data.data?.registrationId ||
+        data.data?.id ||
+        (Array.isArray(data.registrations) && data.registrations.length > 0
+          ? data.registrations[data.registrations.length - 1]?.registrationId
+          : undefined)
+
+      if (!receivedId) {
+        console.error('Server confirmed request but registrationId was not found in response:', data)
+        throw new Error('Server confirmed registration but failed to return a valid Registration ID.')
+      }
+
+      setRegistrationId(receivedId)
       setSuccess(true)
+      // Refetch live slot capacity immediately
+      loadAvailability()
     } catch (err) {
       console.error('Registration error details:', err)
       const errMessage = err instanceof Error ? err.message : 'Unknown network error'

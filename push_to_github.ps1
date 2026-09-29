@@ -37,7 +37,7 @@ git init
 git remote remove origin 2>$null
 git remote add origin https://github.com/upoornalakshminarayana-commits/ieee-cs.git
 git add -A
-git commit -m "Configure production /admin and /#admin routing, vercel.json SPA rewrites, and Google Sheet1 live Admin Portal integration" 2>$null
+git commit -m "Fix public registration response parsing, sync live admin limit, add admin filters and modal download options" 2>$null
 git branch -M main
 
 # 4. Push to GitHub

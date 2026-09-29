@@ -251,7 +251,7 @@ export async function fetchAdminRegistrations(): Promise<FetchRegistrationsResul
  * Fetch registration settings for public page or admin panel
  */
 export async function fetchRegistrationSettings(): Promise<RegistrationSettings> {
-  const url = `${APPS_SCRIPT_URL}?action=getSettings&t=${Date.now()}`;
+  const url = `${APPS_SCRIPT_URL}?action=getRegistrationAvailability&t=${Date.now()}`;
 
   const response = await fetch(url, {
     method: 'GET',
@@ -263,11 +263,29 @@ export async function fetchRegistrationSettings(): Promise<RegistrationSettings>
   }
 
   const data = await response.json();
-  if (!data.success) {
+  if (data.success === false) {
     throw new Error(data.error || 'Failed to retrieve settings');
   }
 
-  return data.settings;
+  if (data.settings) {
+    return data.settings;
+  }
+
+  const maxTeams = data.maxTeams !== undefined ? Number(data.maxTeams) : 100;
+  const activeTeams = data.registeredTeams !== undefined ? Number(data.registeredTeams) : 0;
+  const remainingSlots = data.remainingSlots !== undefined ? Number(data.remainingSlots) : Math.max(0, maxTeams - activeTeams);
+
+  return {
+    allowed: data.allowed !== undefined ? Boolean(data.allowed) : true,
+    calculatedStatus: data.status || 'OPEN',
+    statusOverride: data.statusOverride || 'AUTO',
+    activeTeams,
+    maxTeams,
+    remainingSlots,
+    openingTime: data.openingTime || '2026-09-29T10:00:00+05:30',
+    closingTime: data.closingTime || '2026-10-02T09:00:00+05:30',
+    reason: data.reason,
+  };
 }
 
 /**

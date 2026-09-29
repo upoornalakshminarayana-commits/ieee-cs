@@ -249,10 +249,18 @@ function doGet(e) {
       });
     }
 
-    if (action === "getSettings") {
+    if (action === "getSettings" || action === "getRegistrationAvailability") {
       var availability = checkRegistrationAvailability();
       return createJsonResponse({
         success: true,
+        maxTeams: availability.maxTeams,
+        registeredTeams: availability.activeTeams,
+        remainingSlots: availability.remainingSlots,
+        status: availability.calculatedStatus,
+        openingTime: availability.openingTime,
+        closingTime: availability.closingTime,
+        allowed: availability.allowed,
+        reason: availability.reason,
         settings: availability
       });
     }
@@ -494,8 +502,22 @@ function doPost(e) {
 
     var action = data.action || (e.parameter && e.parameter.action) || "";
 
-    // Route Admin Actions
-    if (action === "updateSettings") {
+    // Route Actions
+    if (action === "getSettings" || action === "getRegistrationAvailability") {
+      var availability = checkRegistrationAvailability();
+      return createJsonResponse({
+        success: true,
+        maxTeams: availability.maxTeams,
+        registeredTeams: availability.activeTeams,
+        remainingSlots: availability.remainingSlots,
+        status: availability.calculatedStatus,
+        openingTime: availability.openingTime,
+        closingTime: availability.closingTime,
+        allowed: availability.allowed,
+        reason: availability.reason,
+        settings: availability
+      });
+    } else if (action === "updateSettings") {
       return handleUpdateSettings(data);
     } else if (action === "blockRegistration") {
       return handleBlockRegistration(data);
@@ -658,7 +680,13 @@ function handlePublicRegistration(data) {
 
   return createJsonResponse({
     success: true,
-    registrationId: registrationId
+    registrationId: registrationId,
+    regId: registrationId,
+    id: registrationId,
+    teamName: data.teamName,
+    timestamp: formattedTimestamp,
+    fcfsPosition: availability.activeTeams + 1,
+    message: "Registration successfully recorded in Sheet1"
   });
 }
 

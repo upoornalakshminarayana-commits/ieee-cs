@@ -1426,6 +1426,64 @@
   color: #fff;
 }
 
+.btn-dossier-action {
+  background: rgba(212, 152, 24, 0.15);
+  border: 1px solid var(--admin-gold-primary);
+  color: var(--admin-gold-bright);
+  font-weight: 700;
+}
+
+.btn-dossier-action:hover {
+  background: rgba(212, 152, 24, 0.28);
+}
+
+.screenshot-btn-cluster {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 4px;
+}
+
+.btn-view-proof,
+.btn-download-proof {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-view-proof {
+  background: rgba(212, 152, 24, 0.15);
+  border: 1px solid var(--admin-gold-primary);
+  color: var(--admin-gold-bright);
+}
+
+.btn-view-proof:hover {
+  background: rgba(212, 152, 24, 0.3);
+}
+
+.btn-download-proof {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.btn-download-proof:hover {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.no-proof-label {
+  color: var(--admin-text-dim);
+  font-size: 0.78rem;
+  font-style: italic;
+}
+
 .btn-admin-close-modal {
   background: var(--admin-gold-primary);
   color: #120902;
