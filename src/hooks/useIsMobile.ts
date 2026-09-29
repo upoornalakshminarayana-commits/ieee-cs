@@ -30,9 +30,7 @@ export function useIsMobile(breakpoint: number = 768): boolean {
       mediaQuery.addEventListener('change', handleChange)
       return () => mediaQuery.removeEventListener('change', handleChange)
     } else {
-      // @ts-expect-error legacy browser fallback
       mediaQuery.addListener(handleChange)
-      // @ts-expect-error legacy browser fallback
       return () => mediaQuery.removeListener(handleChange)
     }
   }, [breakpoint])

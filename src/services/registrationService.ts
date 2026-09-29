@@ -1,4 +1,4 @@
-import { collection, doc, setDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, type FieldValue } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytesResumable, deleteObject } from 'firebase/storage';
 import { db, storage, serverTimestamp } from '../lib/firebase';
 
@@ -30,7 +30,7 @@ export async function uploadPaymentScreenshot(
   screenshotUrl: string;
   screenshotPath: string;
   originalFileName: string;
-  uploadedAt: import('firebase/firestore').Timestamp;
+  uploadedAt: FieldValue;
 }> {
   // Generate a safe unique filename – preserve original extension only.
   const ext = file.name.split('.').pop() ?? 'jpg';

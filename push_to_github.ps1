@@ -19,8 +19,14 @@ git init
 git remote remove origin 2>$null
 git remote add origin https://github.com/upoornalakshminarayana-commits/ieee-cs.git
 git add -A
-git commit -m "KHEPRIX 2K26 official website and registration system"
+git commit -m "KHEPRIX 2K26 official website and registration system" 2>$null
 git branch -M main
-git push -u origin main
+
+Write-Host "Syncing with remote..." -ForegroundColor Yellow
+git pull origin main --rebase --allow-unrelated-histories 2>$null
+
+Write-Host "Pushing to GitHub..." -ForegroundColor Cyan
+git push -u origin main --force
+
 
 
