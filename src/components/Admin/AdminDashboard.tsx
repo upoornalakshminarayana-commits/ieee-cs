@@ -29,6 +29,9 @@ import {
   FileDown,
   DollarSign,
   ShieldAlert,
+  FileSpreadsheet,
+  Layers,
+  Filter,
 } from 'lucide-react'
 import {
   fetchAdminRegistrations,
@@ -46,6 +49,15 @@ import {
   type AdminAddTeamPayload,
 } from '../../services/adminService'
 import { generateConfirmationDocument } from '../../utils/confirmationPdf'
+import {
+  formatDateToInputString,
+  formatFriendlyDate,
+  filterRegistrationsByDateRange,
+  getPresetDateRange,
+  computeExportSummaryStats,
+  exportRegistrationsToExcel,
+  exportRegistrationsToPdf,
+} from '../../utils/exportRegistrations'
 import './AdminDashboard.css'
 
 interface AdminDashboardProps {
@@ -123,6 +135,15 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
   const [blockReason, setBlockReason] = useState<string>('Administrative Disqualification')
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [showRawFields, setShowRawFields] = useState<boolean>(false)
+
+  // Export Modal State
+  const [showExportModal, setShowExportModal] = useState<boolean>(false)
+  const [exportMode, setExportMode] = useState<'date-range' | 'current-filtered'>('date-range')
+  const [exportFromDate, setExportFromDate] = useState<string>(() => formatDateToInputString(new Date()))
+  const [exportToDate, setExportToDate] = useState<string>(() => formatDateToInputString(new Date()))
+  const [exportPreset, setExportPreset] = useState<'today' | 'yesterday' | 'last7days' | 'thismonth' | 'all' | 'custom'>('today')
+  const [exportInProgress, setExportInProgress] = useState<boolean>(false)
+  const [exportProgressText, setExportProgressText] = useState<string>('')
 
   // Settings form state
   const [formMaxTeams, setFormMaxTeams] = useState<number>(100)
@@ -559,6 +580,96 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
     })
   }
 
+  // Open Export Modal with default today preset
+  const openExportModal = () => {
+    const range = getPresetDateRange('today', registrations)
+    setExportFromDate(range.fromDate)
+    setExportToDate(range.toDate)
+    setExportPreset('today')
+    setShowExportModal(true)
+  }
+
+  // Handle Quick Date Presets
+  const handleSelectExportPreset = (preset: 'today' | 'yesterday' | 'last7days' | 'thismonth' | 'all') => {
+    const range = getPresetDateRange(preset, registrations)
+    setExportFromDate(range.fromDate)
+    setExportToDate(range.toDate)
+    setExportPreset(preset)
+  }
+
+  // Target registrations based on Export Mode
+  const targetExportRegistrations = useMemo(() => {
+    if (exportMode === 'current-filtered') {
+      return filteredRegistrations
+    }
+    return filterRegistrationsByDateRange(registrations, exportFromDate, exportToDate)
+  }, [exportMode, filteredRegistrations, registrations, exportFromDate, exportToDate])
+
+  // Summary Metrics for target export registrations
+  const exportSummary = useMemo(() => {
+    return computeExportSummaryStats(targetExportRegistrations)
+  }, [targetExportRegistrations])
+
+  // Excel (.xlsx) Download Handler
+  const handleExportExcel = async () => {
+    if (targetExportRegistrations.length === 0 || exportInProgress) return
+
+    setExportInProgress(true)
+    setExportProgressText(`Preparing ${targetExportRegistrations.length} registrations...`)
+
+    try {
+      await new Promise((r) => setTimeout(r, 120))
+      const success = await exportRegistrationsToExcel(
+        targetExportRegistrations,
+        exportMode === 'date-range' ? exportFromDate : 'Filtered',
+        exportMode === 'date-range' ? exportToDate : 'Export'
+      )
+
+      if (success) {
+        showToast('success', `✓ EXPORT COMPLETE: ${targetExportRegistrations.length} registrations exported successfully.`)
+        setShowExportModal(false)
+      } else {
+        showToast('error', 'Export failed: No valid registration data.')
+      }
+    } catch (err) {
+      console.error('Excel export error:', err)
+      showToast('error', 'Failed to generate Excel spreadsheet.')
+    } finally {
+      setExportInProgress(false)
+      setExportProgressText('')
+    }
+  }
+
+  // PDF Report Download Handler
+  const handleExportPdf = async () => {
+    if (targetExportRegistrations.length === 0 || exportInProgress) return
+
+    setExportInProgress(true)
+    setExportProgressText(`Preparing ${targetExportRegistrations.length} registrations...`)
+
+    try {
+      await new Promise((r) => setTimeout(r, 120))
+      const success = await exportRegistrationsToPdf(
+        targetExportRegistrations,
+        exportMode === 'date-range' ? exportFromDate : 'Filtered',
+        exportMode === 'date-range' ? exportToDate : 'Export'
+      )
+
+      if (success) {
+        showToast('success', `✓ EXPORT COMPLETE: ${targetExportRegistrations.length} registrations exported successfully.`)
+        setShowExportModal(false)
+      } else {
+        showToast('error', 'Failed to generate PDF report.')
+      }
+    } catch (err) {
+      console.error('PDF export error:', err)
+      showToast('error', 'Failed to generate PDF report.')
+    } finally {
+      setExportInProgress(false)
+      setExportProgressText('')
+    }
+  }
+
   return (
     <div className="admin-portal-root">
       {/* Toast Notification Banner */}
@@ -636,6 +747,18 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
           >
             <Settings size={14} />
             <span>Limits &amp; Rules</span>
+          </button>
+
+          {/* Export Data Button */}
+          <button
+            type="button"
+            className="btn-admin-action btn-export-topbar"
+            onClick={openExportModal}
+            title="Export Registrations to Excel (.xlsx) or PDF Report"
+            id="btn-admin-export-data"
+          >
+            <FileSpreadsheet size={15} />
+            <span>EXPORT DATA</span>
           </button>
 
           {/* Manual Add Team Button */}
@@ -1754,6 +1877,346 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── KHEPRIX 2K26 REGISTRATION EXPORT MODAL ── */}
+      {showExportModal && (
+        <div
+          className="admin-modal-backdrop"
+          onClick={(e) => {
+            if (e.target === e.currentTarget && !exportInProgress) {
+              setShowExportModal(false)
+            }
+          }}
+        >
+          <div className="export-modal-card" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
+            {/* Header */}
+            <div className="modal-header export-modal-header">
+              <div className="export-header-left">
+                <div className="export-badge-row">
+                  <span className="export-scarab-badge">𓆣</span>
+                  <span className="export-badge-text">KHEPRIX 2K26 ARCHIVE SYSTEM</span>
+                </div>
+                <h3 className="modal-title export-modal-title" id="export-modal-title">
+                  REGISTRATION EXPORT
+                </h3>
+                <p className="modal-subtitle">
+                  Generate official spreadsheets and administrative multi-page PDF reports
+                </p>
+              </div>
+              <button
+                type="button"
+                className="btn-modal-close"
+                onClick={() => !exportInProgress && setShowExportModal(false)}
+                disabled={exportInProgress}
+                title="Close Export Dialog"
+                aria-label="Close export dialog"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="modal-body export-modal-body">
+              {/* 1. Export Mode Selection */}
+              <div className="export-section">
+                <div className="export-section-heading">
+                  <Layers size={14} className="text-gold" />
+                  <span>1. SELECT EXPORT MODE</span>
+                </div>
+
+                <div className="export-modes-grid">
+                  {/* Mode A: EXPORT DATE RANGE */}
+                  <button
+                    type="button"
+                    className={`export-mode-card ${exportMode === 'date-range' ? 'active' : ''}`}
+                    onClick={() => setExportMode('date-range')}
+                    disabled={exportInProgress}
+                  >
+                    <div className="mode-card-header">
+                      <span className={`mode-radio ${exportMode === 'date-range' ? 'selected' : ''}`} />
+                      <span className="mode-card-title">EXPORT DATE RANGE</span>
+                    </div>
+                    <p className="mode-card-desc">
+                      Exports all registrations from the selected date range from Google Sheet1, ignoring current dashboard filters.
+                    </p>
+                  </button>
+
+                  {/* Mode B: EXPORT CURRENT FILTERED RESULTS */}
+                  <button
+                    type="button"
+                    className={`export-mode-card ${exportMode === 'current-filtered' ? 'active' : ''}`}
+                    onClick={() => setExportMode('current-filtered')}
+                    disabled={exportInProgress}
+                  >
+                    <div className="mode-card-header">
+                      <span className={`mode-radio ${exportMode === 'current-filtered' ? 'selected' : ''}`} />
+                      <span className="mode-card-title">EXPORT CURRENT FILTERED RESULTS</span>
+                    </div>
+                    <p className="mode-card-desc">
+                      Exports only the {filteredRegistrations.length} registrations currently visible matching your active dashboard search and filters.
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Date Range Configuration (Active when Mode A is selected) */}
+              {exportMode === 'date-range' && (
+                <div className="export-section">
+                  <div className="export-section-heading">
+                    <Calendar size={14} className="text-gold" />
+                    <span>2. CHOOSE DATE RANGE</span>
+                  </div>
+
+                  {/* Quick Preset Buttons */}
+                  <div className="export-quick-presets">
+                    <button
+                      type="button"
+                      className={`btn-export-preset ${exportPreset === 'today' ? 'active' : ''}`}
+                      onClick={() => handleSelectExportPreset('today')}
+                      disabled={exportInProgress}
+                    >
+                      TODAY
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn-export-preset ${exportPreset === 'yesterday' ? 'active' : ''}`}
+                      onClick={() => handleSelectExportPreset('yesterday')}
+                      disabled={exportInProgress}
+                    >
+                      YESTERDAY
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn-export-preset ${exportPreset === 'last7days' ? 'active' : ''}`}
+                      onClick={() => handleSelectExportPreset('last7days')}
+                      disabled={exportInProgress}
+                    >
+                      LAST 7 DAYS
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn-export-preset ${exportPreset === 'thismonth' ? 'active' : ''}`}
+                      onClick={() => handleSelectExportPreset('thismonth')}
+                      disabled={exportInProgress}
+                    >
+                      THIS MONTH
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn-export-preset ${exportPreset === 'all' ? 'active' : ''}`}
+                      onClick={() => handleSelectExportPreset('all')}
+                      disabled={exportInProgress}
+                    >
+                      ALL REGISTRATIONS
+                    </button>
+                  </div>
+
+                  {/* Date Pickers */}
+                  <div className="export-date-grid">
+                    <div className="export-date-field">
+                      <label htmlFor="export-from-date">FROM DATE</label>
+                      <input
+                        type="date"
+                        id="export-from-date"
+                        className="export-date-input"
+                        value={exportFromDate}
+                        onChange={(e) => {
+                          setExportFromDate(e.target.value)
+                          setExportPreset('custom')
+                        }}
+                        disabled={exportInProgress}
+                      />
+                    </div>
+
+                    <div className="export-date-field">
+                      <label htmlFor="export-to-date">TO DATE</label>
+                      <input
+                        type="date"
+                        id="export-to-date"
+                        className="export-date-input"
+                        value={exportToDate}
+                        onChange={(e) => {
+                          setExportToDate(e.target.value)
+                          setExportPreset('custom')
+                        }}
+                        disabled={exportInProgress}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Selected Range Display */}
+                  <div className="export-range-banner">
+                    <span className="export-range-label">EXPORT RANGE</span>
+                    <span className="export-range-value">
+                      {formatFriendlyDate(exportFromDate)} → {formatFriendlyDate(exportToDate)}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* 2b. Filtered Summary Box (Active when Mode B is selected) */}
+              {exportMode === 'current-filtered' && (
+                <div className="export-section">
+                  <div className="export-section-heading">
+                    <Filter size={14} className="text-gold" />
+                    <span>2. ACTIVE DASHBOARD FILTERS APPLIED</span>
+                  </div>
+
+                  <div className="export-active-filters-box">
+                    <div className="active-filter-chips">
+                      <span className="filter-chip">
+                        <strong>Source:</strong> {sourceFilter.toUpperCase()}
+                      </span>
+                      <span className="filter-chip">
+                        <strong>Status:</strong> {statusFilter.toUpperCase()}
+                      </span>
+                      <span className="filter-chip">
+                        <strong>Payment:</strong> {paymentFilter.toUpperCase()}
+                      </span>
+                      {deptFilter !== 'all' && (
+                        <span className="filter-chip">
+                          <strong>Dept:</strong> {deptFilter}
+                        </span>
+                      )}
+                      {yearFilter !== 'all' && (
+                        <span className="filter-chip">
+                          <strong>Year:</strong> {yearFilter}
+                        </span>
+                      )}
+                      {searchQuery && (
+                        <span className="filter-chip highlight">
+                          <strong>Search:</strong> &quot;{searchQuery}&quot;
+                        </span>
+                      )}
+                      {datePreset !== 'all' && (
+                        <span className="filter-chip">
+                          <strong>Date:</strong> {datePreset} {dateFilter ? `(${dateFilter})` : ''}
+                        </span>
+                      )}
+                      <span className="filter-chip">
+                        <strong>Sort:</strong> {sortOrder === 'newest' ? 'Newest First' : 'FCFS (Oldest First)'}
+                      </span>
+                    </div>
+
+                    <p className="active-filters-note">
+                      The export will faithfully output exactly the <strong>{filteredRegistrations.length} records</strong> matching your dashboard criteria above.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* 3. Export Preview & Summary */}
+              <div className="export-section">
+                <div className="export-section-heading">
+                  <CheckCircle2 size={14} className="text-gold" />
+                  <span>3. MATCHING DATASET PREVIEW</span>
+                </div>
+
+                {targetExportRegistrations.length > 0 ? (
+                  <div className="export-summary-cards-grid">
+                    <div className="export-summary-card">
+                      <span className="summary-card-lbl">REGISTRATIONS</span>
+                      <span className="summary-card-num text-gold">{targetExportRegistrations.length}</span>
+                    </div>
+                    <div className="export-summary-card">
+                      <span className="summary-card-lbl">PARTICIPANTS</span>
+                      <span className="summary-card-num text-white">{exportSummary.totalParticipants}</span>
+                    </div>
+                    <div className="export-summary-card">
+                      <span className="summary-card-lbl">AMOUNT</span>
+                      <span className="summary-card-num text-gold">₹{exportSummary.totalAmount}</span>
+                    </div>
+                    <div className="export-summary-card">
+                      <span className="summary-card-lbl">CONFIRMED</span>
+                      <span className="summary-card-num text-green">{exportSummary.confirmedCount}</span>
+                    </div>
+                    <div className="export-summary-card">
+                      <span className="summary-card-lbl">PENDING</span>
+                      <span className="summary-card-num text-yellow">{exportSummary.pendingCount}</span>
+                    </div>
+                    <div className="export-summary-card">
+                      <span className="summary-card-lbl">BLOCKED</span>
+                      <span className="summary-card-num text-red">{exportSummary.blockedCount}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="export-empty-state">
+                    <AlertCircle size={28} className="export-empty-icon" />
+                    <div className="export-empty-title">NO REGISTRATIONS FOUND</div>
+                    <div className="export-empty-desc">FOR THE SELECTED DATE RANGE</div>
+                    <p className="export-empty-tip">
+                      {exportMode === 'date-range'
+                        ? 'No registrations were recorded between the chosen From and To dates. Select a different date range or choose ALL REGISTRATIONS.'
+                        : 'No registrations currently match your active dashboard search & filters. Clear or adjust your filters to view and export records.'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Progress State Banner */}
+              {exportInProgress && (
+                <div className="export-progress-banner">
+                  <RefreshCw size={18} className="spinning text-gold" />
+                  <div className="export-progress-info">
+                    <strong className="export-progress-title">EXPORTING...</strong>
+                    <span className="export-progress-subtitle">
+                      {exportProgressText || `Preparing ${targetExportRegistrations.length} registrations`}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="modal-footer export-modal-footer">
+              <button
+                type="button"
+                className="btn-dialog-cancel"
+                onClick={() => setShowExportModal(false)}
+                disabled={exportInProgress}
+              >
+                Close
+              </button>
+
+              <div className="export-download-actions">
+                {/* Download Excel */}
+                <button
+                  type="button"
+                  className="btn-export-download btn-export-excel"
+                  onClick={handleExportExcel}
+                  disabled={targetExportRegistrations.length === 0 || exportInProgress}
+                  title={
+                    targetExportRegistrations.length === 0
+                      ? 'No registrations found to export'
+                      : 'Download full 51-column Excel (.xlsx) file'
+                  }
+                  id="btn-download-excel"
+                >
+                  <FileSpreadsheet size={16} />
+                  <span>DOWNLOAD EXCEL</span>
+                </button>
+
+                {/* Download PDF */}
+                <button
+                  type="button"
+                  className="btn-export-download btn-export-pdf"
+                  onClick={handleExportPdf}
+                  disabled={targetExportRegistrations.length === 0 || exportInProgress}
+                  title={
+                    targetExportRegistrations.length === 0
+                      ? 'No registrations found to export'
+                      : 'Download official multi-page A4 Landscape PDF report'
+                  }
+                  id="btn-download-pdf"
+                >
+                  <FileDown size={16} />
+                  <span>DOWNLOAD PDF</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
