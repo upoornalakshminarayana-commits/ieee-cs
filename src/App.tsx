@@ -12,20 +12,74 @@ import RustedTombGates from './components/Transitions/RustedTombGates'
 import AntiqueAstrolabeHUD from './components/Transitions/AntiqueAstrolabeHUD'
 import AncientAnkhAudio from './components/Transitions/AncientAnkhAudio'
 import AscendPulley from './components/Transitions/AscendPulley'
+import AdminDashboard from './components/Admin/AdminDashboard'
+
+const checkIsAdmin = () => {
+  if (typeof window === 'undefined') return false
+  const p = window.location.pathname.toLowerCase()
+  const h = window.location.hash.toLowerCase()
+  const s = window.location.search.toLowerCase()
+  return (
+    p.includes('/admin') ||
+    p.endsWith('admin') ||
+    h.includes('admin') ||
+    s.includes('admin=true') ||
+    s === '?admin'
+  )
+}
 
 export default function App() {
   const [loading, setLoading] = useState(true)
   const [transitionActive, setTransitionActive] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(checkIsAdmin)
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setIsAdmin(checkIsAdmin())
+    }
+    window.addEventListener('popstate', handleLocationChange)
+    window.addEventListener('hashchange', handleLocationChange)
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange)
+      window.removeEventListener('hashchange', handleLocationChange)
+    }
+  }, [])
+
+  const handleExitAdmin = () => {
+    if (window.location.hash.toLowerCase().includes('admin')) {
+      window.location.hash = ''
+    }
+    if (window.location.pathname.toLowerCase().includes('admin')) {
+      window.history.pushState(null, '', '/')
+    }
+    setIsAdmin(false)
+  }
+
+  if (isAdmin) {
+    return <AdminDashboard onBackToSite={handleExitAdmin} />
+  }
 
   const openRegistration = () => {
     if (transitionActive) return
     setTransitionActive(true)
     document.body.style.overflow = 'hidden'
+    // Pause background videos when modal opens to eliminate GPU/CPU lag while user interacts with form
+    document.querySelectorAll('video').forEach((v) => {
+      try { v.pause() } catch {}
+    })
   }
 
   const closeRegistration = () => {
     setTransitionActive(false)
     document.body.style.overflow = ''
+    // Resume visible videos when modal closes
+    document.querySelectorAll('video').forEach((v) => {
+      try {
+        if (v.hasAttribute('autoplay') || v.loop) {
+          v.play().catch(() => {})
+        }
+      } catch {}
+    })
   }
 
   useEffect(() => {
@@ -43,13 +97,13 @@ export default function App() {
       <Navigation onRegisterClick={openRegistration} />
 
       {/* Floating Antique Astrolabe HUD Navigator (Transition 7) */}
-      <AntiqueAstrolabeHUD />
+      {!transitionActive && <AntiqueAstrolabeHUD />}
 
       {/* Floating Ancient Rusted Bronze Ankh Audio (Transition 8) */}
-      <AncientAnkhAudio />
+      {!transitionActive && <AncientAnkhAudio />}
 
       {/* Floating Ascend Pulley (Transition 10) */}
-      <AscendPulley />
+      {!transitionActive && <AscendPulley />}
 
       {/* Main page journey */}
       <main id="main-content">

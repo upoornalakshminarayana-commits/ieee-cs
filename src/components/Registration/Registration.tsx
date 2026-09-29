@@ -1,11 +1,12 @@
-import { useState, useId, useRef } from 'react'
-import { Sparkles, Shield, User, Phone, Home, Hash, UserCheck, Upload, CheckCircle2, ChevronRight, ChevronLeft, Download, MessageCircle, Image as ImageIcon, AlertCircle, Copy, Check, Building2, GraduationCap, BookOpen } from 'lucide-react'
+import { useState, useId, useRef, useCallback, useEffect } from 'react'
+import { Sparkles, Shield, User, Phone, Home, Hash, UserCheck, Upload, CheckCircle2, ChevronRight, ChevronLeft, Download, MessageCircle, Image as ImageIcon, AlertCircle, Copy, Check, Building2, GraduationCap, BookOpen, Mail } from 'lucide-react'
 import './Registration.css'
 import { EVENT } from '../../data/event'
-import { YEARS, DEPARTMENTS } from '../../data/departments'
+import { fetchRegistrationSettings, type RegistrationSettings } from '../../services/adminService'
 // import { submitRegistration } from '../../services/registrationService'; // Deprecated: using Google Apps Script
 export interface MemberData {
   name: string
+  collegeGmail: string
   phone: string
   regNo: string
   year: string
@@ -25,6 +26,7 @@ export interface SquadRegistrationForm {
 
 const emptyMember = (): MemberData => ({
   name: '',
+  collegeGmail: '',
   phone: '',
   regNo: '',
   year: '',
@@ -53,28 +55,34 @@ export default function Registration() {
   const [success, setSuccess] = useState(false)
   const [paymentFile, setPaymentFile] = useState<File | null>(null)
   const [registrationId, setRegistrationId] = useState<string>('')
+  const [regSettings, setRegSettings] = useState<RegistrationSettings | null>(null)
 
-  const copyToClipboard = (text: string, field: string) => {
+  useEffect(() => {
+    fetchRegistrationSettings()
+      .then((s) => setRegSettings(s))
+      .catch((err) => console.warn('Could not load live registration settings:', err))
+  }, [])
+
+  const copyToClipboard = useCallback((text: string, field: string) => {
     navigator.clipboard.writeText(text).catch(() => {})
     setCopiedField(field)
     setTimeout(() => setCopiedField(null), 2000)
-  }
+  }, [])
 
-  // Handle Team Name Change
-  const handleTeamNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle Team Name Change with stable updater
+  const handleTeamNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setForm(prev => ({ ...prev, teamName: val }))
-    if (errors['teamName']) {
-      setErrors(prev => {
-        const next = { ...prev }
-        delete next['teamName']
-        return next
-      })
-    }
-  }
+    setErrors(prev => {
+      if (!prev['teamName']) return prev
+      const next = { ...prev }
+      delete next['teamName']
+      return next
+    })
+  }, [])
 
-  // Handle Individual Member Field Change
-  const handleMemberChange = (memberIndex: number, field: keyof MemberData, value: string) => {
+  // Handle Individual Member Field Change with stable updater
+  const handleMemberChange = useCallback((memberIndex: number, field: keyof MemberData, value: string) => {
     setForm(prev => {
       const updatedMembers = [...prev.members] as [MemberData, MemberData, MemberData, MemberData]
       updatedMembers[memberIndex] = {
@@ -85,14 +93,13 @@ export default function Registration() {
     })
 
     const errorKey = `m${memberIndex}_${field}`
-    if (errors[errorKey]) {
-      setErrors(prev => {
-        const next = { ...prev }
-        delete next[errorKey]
-        return next
-      })
-    }
-  }
+    setErrors(prev => {
+      if (!prev[errorKey]) return prev
+      const next = { ...prev }
+      delete next[errorKey]
+      return next
+    })
+  }, [])
 
   // Handle Screenshot Upload (PNG, JPG, WEBP)
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,14 +149,19 @@ export default function Registration() {
     form.members.forEach((m, idx) => {
       const role = idx === 0 ? 'Team leader' : `Member ${idx + 1}`
       if (!m.name.trim()) newErrors[`m${idx}_name`] = `${role} name is required.`
+      if (!m.collegeGmail.trim()) {
+        newErrors[`m${idx}_collegeGmail`] = `${role} college Gmail is required.`
+      } else if (!m.collegeGmail.includes('@') || !m.collegeGmail.includes('.')) {
+        newErrors[`m${idx}_collegeGmail`] = 'Enter a valid college email address.'
+      }
       if (!m.phone.trim()) {
         newErrors[`m${idx}_phone`] = `${role} phone number is required.`
       } else if (m.phone.trim().length < 8) {
         newErrors[`m${idx}_phone`] = 'Enter a valid phone number.'
       }
       if (!m.regNo.trim()) newErrors[`m${idx}_regNo`] = `${role} registration no is required.`
-      if (!m.year) newErrors[`m${idx}_year`] = 'Please select a study year.'
-      if (!m.department) newErrors[`m${idx}_department`] = 'Please select a department.'
+      if (!m.year.trim()) newErrors[`m${idx}_year`] = 'Year is required.'
+      if (!m.department.trim()) newErrors[`m${idx}_department`] = 'Department is required.'
       if (!m.hostelName.trim()) newErrors[`m${idx}_hostelName`] = 'Hostel name is required.'
       if (!m.roomNo.trim()) newErrors[`m${idx}_roomNo`] = 'Room no is required.'
       if (!m.wardenName.trim()) newErrors[`m${idx}_wardenName`] = 'Warden name is required.'
@@ -170,6 +182,12 @@ export default function Registration() {
 
     // Prevent duplicate submissions while in flight
     if (submitting) return
+
+    // Prevent submission if registration is closed/paused/full
+    if (regSettings && !regSettings.allowed) {
+      alert(regSettings.reason || 'Registrations are currently closed.')
+      return
+    }
 
     const validationErrors = validateForm()
 
@@ -251,29 +269,31 @@ export default function Registration() {
   }
 
   // Check if member data is complete for tab status
-  const isMemberComplete = (idx: number) => {
+  const isMemberComplete = useCallback((idx: number) => {
     const m = form.members[idx]
+    if (!m) return false
     return Boolean(
       m.name.trim() &&
+      m.collegeGmail.trim() &&
       m.phone.trim() &&
       m.regNo.trim() &&
-      m.year &&
-      m.department &&
+      m.year.trim() &&
+      m.department.trim() &&
       m.hostelName.trim() &&
       m.roomNo.trim() &&
       m.wardenName.trim() &&
       m.wardenPhone.trim()
     )
-  }
+  }, [form.members])
 
   // Open official KHEPRIX 2K26 WhatsApp group in new tab
-  const handleJoinWhatsApp = () => {
+  const handleJoinWhatsApp = useCallback(() => {
     window.open(
       'https://chat.whatsapp.com/K8s7V0Eb9KaItOZL0SCaOJ?s=sw&p=a&ilr=4&iam=0',
       '_blank',
       'noopener,noreferrer'
     )
-  }
+  }, [])
 
   // Generate and download printable official receipt HTML document
   const handleDownloadReceipt = () => {
@@ -484,6 +504,7 @@ export default function Registration() {
         <div class="member-box">
           <div class="member-role">${idx === 0 ? 'Team Leader' : 'Explorer ' + (idx + 1)}</div>
           <div class="member-name">${m.name || 'Member ' + (idx + 1)}</div>
+          <div><strong>College Gmail:</strong> ${m.collegeGmail || '—'}</div>
           <div><strong>Reg No:</strong> ${m.regNo || '—'}</div>
           <div><strong>Year:</strong> ${m.year || '—'} • <strong>Dept:</strong> ${m.department || '—'}</div>
           <div><strong>Phone:</strong> ${m.phone || '—'}</div>
@@ -550,6 +571,7 @@ export default function Registration() {
                 <div key={idx} className="roster-member-card">
                   <div className="roster-badge">{idx === 0 ? 'TEAM LEADER' : `EXPLORER ${idx + 1}`}</div>
                   <strong className="roster-name">{m.name}</strong>
+                  <p className="roster-meta">Gmail: <span>{m.collegeGmail}</span></p>
                   <p className="roster-meta">Reg No: <span>{m.regNo}</span></p>
                   <p className="roster-meta">Year: <span>{m.year}</span> • Dept: <span>{m.department}</span></p>
                   <p className="roster-meta">Phone: <span>{m.phone}</span></p>
@@ -637,6 +659,23 @@ export default function Registration() {
           </div>
           <span className="fee-note">(₹300 / MEMBER • 4-MEMBER SQUAD • TOTAL: ₹1,200)</span>
         </div>
+
+        {/* Live Registration Availability & Capacity Banner */}
+        {regSettings && (
+          <div className={`reg-availability-banner ${regSettings.allowed ? 'avail-open' : 'avail-blocked'}`}>
+            {regSettings.allowed ? (
+              <>
+                <CheckCircle2 size={16} className="avail-icon" />
+                <span>EXPEDITION REGISTRY IS OPEN • {regSettings.remainingSlots} OF {regSettings.maxTeams} SLOTS REMAINING</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle size={16} className="avail-icon" />
+                <span>{regSettings.reason || 'REGISTRATIONS ARE CURRENTLY SEALED'}</span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <form className="reg-form" onSubmit={handleSubmit} noValidate>
@@ -668,7 +707,7 @@ export default function Registration() {
         <div className="reg-member-tabs-container">
           <div className="reg-member-tabs" role="tablist" aria-label="Squad Member Selector">
             {[0, 1, 2, 3].map((mIdx) => {
-              const hasErr = Object.keys(errors).some(k => k.startsWith(`m${mIdx}_`))
+              const hasErr = Object.keys(errors).length > 0 && Object.keys(errors).some(k => k.startsWith(`m${mIdx}_`))
               const isDone = isMemberComplete(mIdx)
               return (
                 <button
@@ -715,7 +754,7 @@ export default function Registration() {
               <span className="pane-count-badge">SQUAD MEMBER {activeTab + 1} OF 4</span>
             </div>
 
-            {/* Row 1: Name & Phone */}
+            {/* Row 1: Name & College Gmail */}
             <div className="reg-row">
               <div className="reg-field">
                 <label htmlFor={`${id}-m${activeTab}-name`} className="reg-label">
@@ -739,6 +778,30 @@ export default function Registration() {
               </div>
 
               <div className="reg-field">
+                <label htmlFor={`${id}-m${activeTab}-collegeGmail`} className="reg-label">
+                  <Mail size={14} />
+                  <span>College Gmail *</span>
+                </label>
+                <input
+                  id={`${id}-m${activeTab}-collegeGmail`}
+                  type="email"
+                  className={`reg-input ${errors[`m${activeTab}_collegeGmail`] ? 'has-error' : ''}`}
+                  value={currentMember.collegeGmail}
+                  onChange={(e) => handleMemberChange(activeTab, 'collegeGmail', e.target.value)}
+                  placeholder="Enter your college Gmail"
+                  autoComplete="email"
+                />
+                {errors[`m${activeTab}_collegeGmail`] && (
+                  <span className="reg-error-msg">
+                    <span className="error-glyph">𓀀</span> {errors[`m${activeTab}_collegeGmail`]}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Row 2: Phone & Reg No */}
+            <div className="reg-row">
+              <div className="reg-field">
                 <label htmlFor={`${id}-m${activeTab}-phone`} className="reg-label">
                   <Phone size={14} />
                   <span>Phone Number *</span>
@@ -758,10 +821,7 @@ export default function Registration() {
                   </span>
                 )}
               </div>
-            </div>
 
-            {/* Row 2: Reg No & Year */}
-            <div className="reg-row">
               <div className="reg-field">
                 <label htmlFor={`${id}-m${activeTab}-regNo`} className="reg-label">
                   <Hash size={14} />
@@ -781,49 +841,43 @@ export default function Registration() {
                   </span>
                 )}
               </div>
+            </div>
 
+            {/* Row 3: Year & Department (Text Inputs) */}
+            <div className="reg-row">
               <div className="reg-field">
                 <label htmlFor={`${id}-m${activeTab}-year`} className="reg-label">
                   <GraduationCap size={14} />
-                  <span>Year of Study *</span>
+                  <span>Year *</span>
                 </label>
-                <select
+                <input
                   id={`${id}-m${activeTab}-year`}
+                  type="text"
                   className={`reg-input ${errors[`m${activeTab}_year`] ? 'has-error' : ''}`}
                   value={currentMember.year}
                   onChange={(e) => handleMemberChange(activeTab, 'year', e.target.value)}
-                >
-                  <option value="">-- Select Year --</option>
-                  {YEARS.map((yr) => (
-                    <option key={yr} value={yr}>{yr}</option>
-                  ))}
-                </select>
+                  placeholder="Enter your year (e.g. 2nd Year)"
+                />
                 {errors[`m${activeTab}_year`] && (
                   <span className="reg-error-msg">
                     <span className="error-glyph">𓀀</span> {errors[`m${activeTab}_year`]}
                   </span>
                 )}
               </div>
-            </div>
 
-            {/* Row 3: Academic Department */}
-            <div className="reg-row-full" style={{ marginBottom: '1rem' }}>
               <div className="reg-field">
                 <label htmlFor={`${id}-m${activeTab}-department`} className="reg-label">
                   <BookOpen size={14} />
-                  <span>Academic Department *</span>
+                  <span>Department *</span>
                 </label>
-                <select
+                <input
                   id={`${id}-m${activeTab}-department`}
+                  type="text"
                   className={`reg-input ${errors[`m${activeTab}_department`] ? 'has-error' : ''}`}
                   value={currentMember.department}
                   onChange={(e) => handleMemberChange(activeTab, 'department', e.target.value)}
-                >
-                  <option value="">-- Select University Department --</option>
-                  {DEPARTMENTS.map((dept) => (
-                    <option key={dept.code} value={dept.code}>{dept.name}</option>
-                  ))}
-                </select>
+                  placeholder="Enter your department (e.g. AIML)"
+                />
                 {errors[`m${activeTab}_department`] && (
                   <span className="reg-error-msg">
                     <span className="error-glyph">𓀀</span> {errors[`m${activeTab}_department`]}
@@ -1115,12 +1169,20 @@ export default function Registration() {
         <div className="submit-action-cluster">
           <button
             type="submit"
-            className="btn-pharaoh reg-submit-btn"
-            disabled={submitting}
+            className={`btn-pharaoh reg-submit-btn ${regSettings && !regSettings.allowed ? 'btn-disabled-pharaoh' : ''}`}
+            disabled={submitting || (Boolean(regSettings) && !regSettings?.allowed)}
           >
             <Sparkles size={18} />
             <span>
-              {submitting ? 'SEALING SQUAD ENTRY...' : 'UNSEAL ENTRY — SUBMIT 4-MEMBER SQUAD (₹1200)'}
+              {submitting
+                ? 'SEALING SQUAD ENTRY...'
+                : regSettings && !regSettings.allowed
+                ? regSettings.calculatedStatus === 'FULL'
+                  ? 'REGISTRATION CAPACITY REACHED (SEALED)'
+                  : regSettings.calculatedStatus === 'PAUSED'
+                  ? 'REGISTRATION TEMPORARILY PAUSED'
+                  : 'REGISTRATIONS CLOSED'
+                : 'UNSEAL ENTRY — SUBMIT 4-MEMBER SQUAD (₹1200)'}
             </span>
           </button>
         </div>

@@ -31,7 +31,7 @@ git init
 git remote remove origin 2>nul
 git remote add origin https://github.com/upoornalakshminarayana-commits/ieee-cs.git
 git add -A
-git commit -m "Include all MP4 video assets in public/videos for Vercel deployment" 2>nul
+git commit -m "Update footer contact details, Instagram link, and registration performance optimizations" 2>nul
 git branch -M main
 git push -u origin main --force
 

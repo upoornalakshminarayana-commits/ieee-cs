@@ -37,7 +37,7 @@ git init
 git remote remove origin 2>$null
 git remote add origin https://github.com/upoornalakshminarayana-commits/ieee-cs.git
 git add -A
-git commit -m "Include all MP4 video assets in public/videos for Vercel deployment" 2>$null
+git commit -m "Configure production /admin and /#admin routing, vercel.json SPA rewrites, and Google Sheet1 live Admin Portal integration" 2>$null
 git branch -M main
 
 # 4. Push to GitHub

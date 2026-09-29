@@ -22,7 +22,7 @@ export const EVENT = {
   feePerMember: "₹300",
   feeDescription: "₹300 per member • ₹1,200 per 4-Member Expedition Squad",
   contactEmail: "ieee.cs@klu.ac.in",
-  contactPhone: "+91 98765 43210",
+  contactPhone: "+91 95157 11265",
   payment: {
     accountNumber: "335602011000163",
     ifscCode: "UBIN0562734",
@@ -35,10 +35,7 @@ export const EVENT = {
     third: "₹1,500 Cash Prize",
   },
   socialLinks: {
-    instagram: "https://instagram.com",
-    twitter: "https://twitter.com",
-    facebook: "https://facebook.com",
-    youtube: "https://youtube.com",
+    instagram: "https://www.instagram.com/kare_ieeecssbc?stkn=MWowaW0yZG1ycnBuOQ==",
   },
   registrationUrl: "#",
 };

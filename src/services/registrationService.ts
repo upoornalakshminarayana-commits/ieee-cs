@@ -78,6 +78,7 @@ export async function submitRegistration(formData: {
   members: [
     {
       name: string;
+      collegeGmail?: string;
       phone: string;
       regNo: string;
       year?: string;
@@ -89,6 +90,7 @@ export async function submitRegistration(formData: {
     },
     {
       name: string;
+      collegeGmail?: string;
       phone: string;
       regNo: string;
       year?: string;
@@ -100,6 +102,7 @@ export async function submitRegistration(formData: {
     },
     {
       name: string;
+      collegeGmail?: string;
       phone: string;
       regNo: string;
       year?: string;
@@ -111,6 +114,7 @@ export async function submitRegistration(formData: {
     },
     {
       name: string;
+      collegeGmail?: string;
       phone: string;
       regNo: string;
       year?: string;
@@ -163,6 +167,7 @@ export async function submitRegistration(formData: {
     members: formData.members.map((m, idx) => ({
       memberNumber: idx + 1,
       name: m.name.trim(),
+      collegeGmail: (m.collegeGmail || '').trim(),
       phone: m.phone.trim(),
       regNo: m.regNo.trim(),
       year: (m.year || '').trim(),

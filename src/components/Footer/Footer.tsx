@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Sparkles, Compass } from 'lucide-react'
+import { Mail, Phone, MapPin, Sparkles, Compass, Shield } from 'lucide-react'
 import './Footer.css'
 import { EVENT } from '../../data/event'
 
@@ -30,24 +30,17 @@ export default function Footer() {
             <span className="footer-highlight">{EVENT.collegeName}</span>.
           </p>
 
-          {/* Social Links */}
+          {/* Social Links — Instagram Only */}
           <div className="footer-social">
-            {([
-              { href: EVENT.socialLinks.instagram, label: 'INSTAGRAM' },
-              { href: EVENT.socialLinks.twitter,   label: 'TWITTER' },
-              { href: EVENT.socialLinks.facebook,  label: 'FACEBOOK' },
-              { href: EVENT.socialLinks.youtube,   label: 'YOUTUBE' },
-            ] as const).map(({ href, label }) => (
-              <a
-                key={label}
-                href={href}
-                className="footer-social-link"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {label}
-              </a>
-            ))}
+            <a
+              href={EVENT.socialLinks.instagram}
+              className="footer-social-link"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Follow KARE IEEE CS on Instagram"
+            >
+              INSTAGRAM
+            </a>
           </div>
         </div>
 
@@ -64,8 +57,8 @@ export default function Footer() {
             </div>
             <div className="footer-contact-item">
               <Phone size={15} className="footer-contact-icon" />
-              <a href={`tel:${EVENT.contactPhone}`} className="footer-link-text">
-                {EVENT.contactPhone}
+              <a href="tel:+919515711265" className="footer-link-text">
+                +91 95157 11265
               </a>
             </div>
             <div className="footer-contact-item">
@@ -103,6 +96,20 @@ export default function Footer() {
                 <Sparkles size={13} />
                 <span>REGISTER ENTRY</span>
               </button>
+            </li>
+            <li>
+              <a
+                href="#admin"
+                className="footer-nav-btn footer-admin-link"
+                onClick={(e) => {
+                  e.preventDefault()
+                  window.location.hash = '#admin'
+                  window.dispatchEvent(new Event('hashchange'))
+                }}
+              >
+                <Shield size={13} />
+                <span>ADMIN PORTAL</span>
+              </a>
             </li>
           </ul>
         </div>

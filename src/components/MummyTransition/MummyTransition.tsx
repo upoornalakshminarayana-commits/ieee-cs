@@ -531,6 +531,9 @@ export default function MummyTransition({ active, onClose }: MummyTransitionProp
     const tl = gsap.timeline({
       onComplete: () => {
         isRunning.current = false
+        if (chamberRef.current) {
+          chamberRef.current.style.willChange = 'auto'
+        }
       },
     })
     masterTimeline.current = tl

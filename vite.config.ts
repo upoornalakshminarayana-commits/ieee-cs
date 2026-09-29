@@ -14,11 +14,11 @@ const videoServerPlugin = (): Plugin => ({
 
       if (url.startsWith('/videos/desktop/')) {
         const rel = decodeURIComponent(url.replace('/videos/desktop/', '').split('?')[0])
-        const localPath = path.resolve(__dirname, 'public/videos/desktop', rel)
+        const localPath = path.resolve(process.cwd(), 'public/videos/desktop', rel)
         targetPath = fs.existsSync(localPath) ? localPath : path.resolve('G:/Mummy/desktop vedios', rel)
       } else if (url.startsWith('/videos/mobile/')) {
         const rel = decodeURIComponent(url.replace('/videos/mobile/', '').split('?')[0])
-        const localPath = path.resolve(__dirname, 'public/videos/mobile', rel)
+        const localPath = path.resolve(process.cwd(), 'public/videos/mobile', rel)
         targetPath = fs.existsSync(localPath) ? localPath : path.resolve('G:/Mummy/mobile vedios', rel)
       }
 
@@ -62,6 +62,7 @@ export default defineConfig({
   },
   assetsInclude: ['**/*.glb', '**/*.gltf', '**/*.mp4'],
   build: {
+    emptyOutDir: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
