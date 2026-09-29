@@ -19,6 +19,7 @@ export interface MemberData {
 
 export interface SquadRegistrationForm {
   teamName: string
+  transactionId: string
   paymentScreenshot: string | null
   paymentScreenshotName: string
   members: [MemberData, MemberData, MemberData, MemberData]
@@ -49,6 +50,7 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null)
   const [form, setForm] = useState<SquadRegistrationForm>({
     teamName: '',
+    transactionId: '',
     paymentScreenshot: null,
     paymentScreenshotName: '',
     members: [emptyMember(), emptyMember(), emptyMember(), emptyMember()],
@@ -102,6 +104,18 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
       if (!prev['teamName']) return prev
       const next = { ...prev }
       delete next['teamName']
+      return next
+    })
+  }, [])
+
+  // Handle Transaction ID Change with stable updater
+  const handleTransactionIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setForm(prev => ({ ...prev, transactionId: val }))
+    setErrors(prev => {
+      if (!prev['transactionId']) return prev
+      const next = { ...prev }
+      delete next['transactionId']
       return next
     })
   }, [])
@@ -195,6 +209,10 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
       }
     })
 
+    if (!form.transactionId || !form.transactionId.trim()) {
+      newErrors['transactionId'] = 'Transaction ID is required.'
+    }
+
     if (!form.paymentScreenshot) {
       newErrors['paymentScreenshot'] = 'Payment screenshot (PNG/JPG) of ₹1200 is required.'
     }
@@ -227,7 +245,7 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
           return
         }
       }
-      if (validationErrors['paymentScreenshot']) {
+      if (validationErrors['paymentScreenshot'] || validationErrors['transactionId']) {
         setActiveTab(4)
       }
       return
@@ -247,7 +265,8 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
     setSub(true)
     try {
       const requestBody = {
-        teamName: form.teamName,
+        teamName: form.teamName.trim(),
+        transactionId: form.transactionId.trim(),
         members: form.members,
         paymentScreenshotName: form.paymentScreenshotName,
         paymentScreenshotUrl: form.paymentScreenshot,
@@ -549,6 +568,10 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
         <div class="meta-label">Payment Status</div>
         <div class="meta-val">Verified & Recorded</div>
       </div>
+      <div class="meta-item">
+        <div class="meta-label">Transaction ID / UTR</div>
+        <div class="meta-val" style="font-family: monospace;">${form.transactionId.trim() || 'Not provided'}</div>
+      </div>
     </div>
 
     <div class="squad-title">𓋹 Confirmed Squad Roster (4 Members)</div>
@@ -615,6 +638,21 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
             <CheckCircle2 size={18} className="success-icon" />
             <span>FEE STATUS: ₹1200 PAYMENT SCREENSHOT SUBMITTED &amp; RECORDED</span>
           </div>
+
+          {form.transactionId && (
+            <div className="reg-txn-box">
+              <span className="reg-txn-label">TRANSACTION ID / UTR:</span>
+              <code className="reg-txn-code">{form.transactionId.trim()}</code>
+              <button
+                type="button"
+                className="btn-copy-txn"
+                onClick={() => copyToClipboard(form.transactionId.trim(), 'successtxn')}
+                title="Copy Transaction ID"
+              >
+                {copiedField === 'successtxn' ? <Check size={14} className="copied-icon" /> : <Copy size={14} />}
+              </button>
+            </div>
+          )}
 
           {/* Squad Roster Overview */}
           <div className="success-squad-roster">
@@ -1141,9 +1179,36 @@ export default function Registration({ isOpen = true }: RegistrationProps) {
                 </div>
 
                 <div className="bank-ledger-note">
-                  <span>𓆣</span> Transfer ₹1200 via NetBanking, NEFT, or IMPS using the official Account Number and IFSC Code above. Then upload the payment screenshot receipt below.
+                  <span>𓆣</span> Transfer ₹1200 via NetBanking, NEFT, or IMPS using the official Account Number and IFSC Code above. Then enter your Transaction ID and upload the payment screenshot receipt below.
                 </div>
               </div>
+            </div>
+
+            {/* Transaction ID / UTR Input */}
+            <div className="reg-field reg-txn-field">
+              <label htmlFor={`${id}-transactionId`} className="reg-label">
+                <Hash size={14} />
+                <span>Transaction ID *</span>
+              </label>
+              <input
+                id={`${id}-transactionId`}
+                name="transactionId"
+                type="text"
+                className={`reg-input ${errors['transactionId'] ? 'has-error' : ''}`}
+                value={form.transactionId}
+                onChange={handleTransactionIdChange}
+                placeholder="Enter your UPI transaction / UTR ID"
+                autoComplete="off"
+                required
+              />
+              <span className="reg-field-helper">
+                Enter the transaction ID shown after completing the payment.
+              </span>
+              {errors['transactionId'] && (
+                <span className="reg-error-msg">
+                  <span className="error-glyph">𓀀</span> {errors['transactionId']}
+                </span>
+              )}
             </div>
 
             {/* File Upload Area */}

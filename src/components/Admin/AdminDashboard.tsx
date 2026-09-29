@@ -210,7 +210,7 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
       <div><strong>Status:</strong> ${reg.status}</div>
       <div><strong>Payment Status:</strong> ${reg.paymentStatus || 'Pending Verification'}</div>
       <div><strong>Total Amount:</strong> ₹${reg.totalAmount} (₹300 × 4)</div>
-      <div><strong>Transaction ID:</strong> ${reg.transactionId || 'None Recorded'}</div>
+      <div><strong>Transaction ID:</strong> ${reg.transactionId || 'Not provided'}</div>
       <div><strong>Event / Venue:</strong> KHEPRIX 2K26 • 8 Block (Oct 2, 2026)</div>
       <div><strong>Registration Source:</strong> ${reg.registrationSource || 'PUBLIC'}</div>
     </div>
@@ -1221,7 +1221,7 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
                             </button>
                           </div>
                         ) : (
-                          <span className="no-txn-label">—</span>
+                          <span className="no-txn-label">Not provided</span>
                         )}
                       </td>
 
@@ -1406,8 +1406,20 @@ export default function AdminDashboard({ onBackToSite }: AdminDashboardProps) {
                   </span>
                 </div>
                 <div className="payment-stat-item">
-                  <span className="meta-lbl">Transaction ID</span>
-                  <span className="meta-val monospace-val">{selectedReg.transactionId || 'None Recorded'}</span>
+                  <span className="meta-lbl">TRANSACTION ID</span>
+                  <div className="txn-modal-val-row">
+                    <span className="meta-val monospace-val">{selectedReg.transactionId || 'Not provided'}</span>
+                    {selectedReg.transactionId && (
+                      <button
+                        type="button"
+                        className="btn-inline-copy"
+                        onClick={() => handleCopy(selectedReg.transactionId || '', 'modal-txn')}
+                        title="Copy Transaction ID"
+                      >
+                        {copiedId === 'modal-txn' ? <Check size={12} className="copy-done" /> : <Copy size={12} />}
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="payment-stat-item">
                   <span className="meta-lbl">Payment Screenshot Proof</span>

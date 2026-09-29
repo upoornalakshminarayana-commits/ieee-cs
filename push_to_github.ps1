@@ -37,7 +37,7 @@ git init
 git remote remove origin 2>$null
 git remote add origin https://github.com/upoornalakshminarayana-commits/ieee-cs.git
 git add -A
-git commit -m "Upgrade Admin Portal with Date-Range Export System (Excel .xlsx and multi-page A4 Landscape PDF reports)" 2>$null
+git commit -m "Add Transaction ID to registration payment step, receipt, confirmation voucher, and admin portal" 2>$null
 git branch -M main
 
 # 4. Push to GitHub

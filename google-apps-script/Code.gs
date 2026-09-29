@@ -671,7 +671,7 @@ function handlePublicRegistration(data) {
     "Blocked At": "",
     "Blocked By": "",
     "Block Reason": "",
-    "Transaction ID": (data.transactionId || "").toString().trim(),
+    "Transaction ID": (data.transactionId || data.txnId || data.utr || data.transaction_id || "").toString().trim(),
     "Registration Source": "PUBLIC"
   };
 
@@ -683,6 +683,7 @@ function handlePublicRegistration(data) {
     registrationId: registrationId,
     regId: registrationId,
     id: registrationId,
+    transactionId: (data.transactionId || data.txnId || data.utr || data.transaction_id || "").toString().trim(),
     teamName: data.teamName,
     timestamp: formattedTimestamp,
     fcfsPosition: availability.activeTeams + 1,

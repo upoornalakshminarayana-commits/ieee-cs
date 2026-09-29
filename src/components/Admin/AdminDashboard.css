@@ -1260,6 +1260,18 @@
   font-family: var(--admin-font-mono);
 }
 
+.txn-modal-val-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.no-txn-label {
+  font-size: 0.74rem;
+  color: var(--admin-text-dim);
+  font-style: italic;
+}
+
 .section-heading {
   font-size: 0.8rem;
   letter-spacing: 0.12em;

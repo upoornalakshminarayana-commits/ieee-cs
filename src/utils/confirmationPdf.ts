@@ -9,7 +9,7 @@ export function generateConfirmationDocument(reg: AdminRegistration): void {
   const regId = reg.registrationId || 'KPX-CONFIRMED'
   const teamName = reg.teamName || 'Expedition Squad'
   const timestamp = reg.timestamp || new Date().toLocaleString('en-IN')
-  const txnId = reg.transactionId || 'OFFICIAL-TREASURY-RECORD'
+  const txnId = reg.transactionId || 'Not provided'
 
   const html = `<!DOCTYPE html>
 <html lang="en">

@@ -170,11 +170,17 @@ export async function fetchAdminRegistrations(): Promise<FetchRegistrationsResul
     let activeRank = 1;
     const registrations: AdminRegistration[] = sorted.map((reg) => {
       const isBlocked = (reg.status || '').toUpperCase() === 'BLOCKED';
+      const rawTxn =
+        reg.transactionId ||
+        (reg.rawRecord && (reg.rawRecord['Transaction ID'] || reg.rawRecord['Transaction ID / UTR'] || reg.rawRecord['Txn ID'] || reg.rawRecord['UTR'])) ||
+        '';
+
       return {
         ...reg,
         status: isBlocked ? 'BLOCKED' : 'ACTIVE',
         fcfsRank: isBlocked ? 999999 : activeRank,
         fcfsDisplay: isBlocked ? 'BLOCKED' : `#${activeRank++}`,
+        transactionId: rawTxn.toString().trim(),
       };
     });
 
